@@ -18,6 +18,25 @@ SPEC.loader.exec_module(archive)
 
 
 class EvidenceArchiveTests(unittest.TestCase):
+    def test_review_withholds_all_aliases_without_removing_originals(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            source = base / 'input'
+            source.mkdir()
+            raw = b'Uncleared source text'
+            for name in ('uncleared.txt', 'duplicate.txt'):
+                (source / name).write_bytes(raw)
+            (source / 'observations.json').write_bytes(b'{"command_count":2}')
+            archive.build([('batch', source)], base / 'export', {}, 'a' * 40)
+            result = archive.review(base / 'export/public', base / 'reviewed', ['uncleared'])
+            self.assertEqual(result['restricted_by_review'], 2)
+            self.assertEqual(result['public_objects'], 1)
+            self.assertTrue((source / 'uncleared.txt').is_file())
+            rows = [json.loads(line) for line in (base / 'reviewed/index.jsonl').read_text().splitlines()]
+            denied = next(r for r in rows if r['path'].endswith('duplicate.txt'))
+            self.assertIsNone(denied['object'])
+            archive.verify(base / 'export/local-vault/original-index.jsonl', base / 'export/local-vault/objects', original=True)
+
     def test_fast_credential_filter_preserves_unicode_and_ascii_rules(self):
         samples = ['{"password":"example-secret"}', '{"prıvate_key":"example-secret"}',
                    'https://example:example@example.invalid/', 'Bearer ' + 'X' * 20,

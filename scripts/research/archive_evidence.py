@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Snapshot research files without changing originals; publish reviewed derivatives.
 
-The public index includes withheld files. All originals are content-addressed in
-the local vault; public objects are separate. This is an export policy, not an
+The public index includes withheld files. Local snapshots are content-addressed
+in the vault; remote retained originals have explicit locations. This is an export policy, not an
 assertion of ownership or a native-validation classifier. No game API is used.
 """
 
@@ -281,7 +281,17 @@ def build(roots: list[tuple[str, Path]], output: Path, policy: dict, source_comm
                "original_index_sha256": sha((vault / "original-index.jsonl").read_bytes()),
                "evidence_levels": "raw observations, automated reports, human interpretations and live verification remain distinct"}
     (public / "ARCHIVE.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    write_pointers(public, rows)
+    return summary
+
+
+def write_pointers(public: Path, rows: list[dict]):
     for row in rows:
+        expected_entry = 'paths/' + sha(row['path'].encode())[:2] + '/' + sha(row['path'].encode()) + '.md'
+        if row['entry'] != expected_entry:
+            raise ValueError('Unsafe evidence pointer path')
+        if row['object'] and row['object'] != 'objects/' + checked_digest(row['public_sha256'])[:2] + '/' + row['public_sha256'] + '.gz':
+            raise ValueError('Unsafe evidence object path')
         pointer = public / row['entry']
         pointer.parent.mkdir(parents=True, exist_ok=True)
         link = "No public original download. Retained in the restricted local vault."
@@ -290,7 +300,57 @@ def build(roots: list[tuple[str, Path]], output: Path, policy: dict, source_comm
             link = f"[Download the gzip research object]({relative}). Decompress and verify the public SHA-256."
         text = f"# Research Evidence\n\nPath: `{row['path']}`\n\nAccess: `{row['access']}`\n\nOriginal SHA-256: `{row['original_sha256']}`\n\nPublic SHA-256: `{row['public_sha256']}`\n\n{link}\n\nA redacted derivative is not the original. This entry does not promote a Command or establish causal pairing.\n"
         pointer.write_text(text, encoding="utf-8")
-    return summary
+
+
+def review(export: Path, output: Path, deny_paths: list[str]) -> dict:
+    """Create a separate reviewed tree; denied bytes never enter its object set."""
+    index = export / 'index.jsonl'
+    if export.resolve() in output.resolve().parents:
+        raise ValueError('Reviewed output must not be inside the retained export')
+    manifest = json.loads((export / 'ARCHIVE.json').read_text(encoding='utf-8'))
+    if sha(index.read_bytes()) != manifest['index_sha256']:
+        raise ValueError('Input export index does not match its manifest')
+    rows = [json.loads(line) for line in index.read_text(encoding='utf-8').splitlines()]
+    denied = [r for r in rows if any(re.search(p, r['path'], re.I) for p in deny_paths)]
+    raw_hashes = {r['original_sha256'] for r in denied if r['original_sha256']}
+    public_hashes = {r['public_sha256'] for r in denied if r['public_sha256']}
+    output.mkdir(parents=True, exist_ok=False)
+    decisions, copied, sizes = [], set(), {}
+    for row in rows:
+        if row['public_sha256'] and (row['original_sha256'] in raw_hashes or row['public_sha256'] in public_hashes):
+            decisions.append({'path': row['path'], 'original_sha256': row['original_sha256'],
+                              'previous_access': row['access'], 'reason': 'explicit_review_rule_or_identical_content'})
+            row.update(access='restricted_after_publication_review', public_sha256=None, object=None, reported_context=[])
+        digest = row['public_sha256']
+        if digest and digest not in copied:
+            checked_digest(digest)
+            relative = Path('objects') / digest[:2] / (digest + '.gz')
+            source, target = export / relative, output / relative
+            with gzip.open(source, 'rb') as stream:
+                data = stream.read()
+                if sha(data) != digest:
+                    raise ValueError('Corrupt reviewed evidence object')
+                sizes[digest] = len(data)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                os.link(source, target)
+            except OSError:
+                shutil.copyfile(source, target)
+            copied.add(digest)
+    write_jsonl(output / 'index.jsonl', rows)
+    counts = Counter(r['access'] for r in rows)
+    counts.update(files=len(rows), original_bytes=sum(r['original_bytes'] or 0 for r in rows),
+                  unstable_snapshots=sum(not r['stable_snapshot'] for r in rows),
+                  missing_original_hashes=sum(not r['original_sha256'] for r in rows))
+    counts['public_bytes_uncompressed'] = sum(sizes[r['public_sha256']] for r in rows if r['public_sha256'])
+    manifest.update(counts=dict(counts), index_sha256=sha((output / 'index.jsonl').read_bytes()), unique_public_objects=len(copied))
+    (output / 'ARCHIVE.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
+    receipt = {'input_index_sha256': sha(index.read_bytes()), 'input_export_retained': True,
+               'deny_path_patterns': deny_paths, 'decisions': decisions,
+               'withholding_is_not_deletion': True, 'output_index_sha256': manifest['index_sha256']}
+    (output / 'REVIEW.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
+    write_pointers(output, rows)
+    return {'reviewed_files': len(rows), 'restricted_by_review': len(decisions), 'public_objects': len(copied)}
 
 
 def write_jsonl(path: Path, rows: list[dict]):
@@ -368,6 +428,10 @@ def main():
     unpack.add_argument("--objects", type=Path, required=True)
     unpack.add_argument("--output", type=Path, required=True)
     unpack.add_argument("--original", action="store_true", help="Use the restricted original index/vault, never public derivatives")
+    curated = sub.add_parser('review', help='Create a new public tree with explicit withholding decisions and no denied objects')
+    curated.add_argument('--export', type=Path, required=True)
+    curated.add_argument('--output', type=Path, required=True)
+    curated.add_argument('--deny-path', action='append', required=True)
     args = parser.parse_args()
     if args.mode == "build":
         roots = [(label, Path(value)) for label, value in (r.split("=", 1) for r in args.root)]
@@ -378,6 +442,8 @@ def main():
         result = build(roots, args.output, policy, args.source_commit, args.external_index, args.reuse_from)
     elif args.mode == "verify":
         result = verify(args.index, args.objects, args.original)
+    elif args.mode == 'review':
+        result = review(args.export, args.output, args.deny_path)
     else:
         result = restore(args.index, args.objects, args.output, args.original)
     print(json.dumps(result, indent=2))

@@ -40,6 +40,10 @@ Exports require a new output directory. The restricted `snapshot-journal.jsonl`
 records progress if publication is interrupted. `build --reuse-from OLD_EXPORT`
 can reuse prior CAS objects only after checking their uncompressed hashes;
 it still reviews current inputs and never overwrites the prior export.
+`review --export EXPORT/public --output NEW_PUBLIC_TREE --deny-path REGEX`
+creates a separate reviewed tree and a decision ledger. Identical-content aliases
+are withheld together; denied objects are not copied into the publishable tree.
+The pre-review export and restricted originals remain intact.
 
 ## Retrieve Actual Data
 
