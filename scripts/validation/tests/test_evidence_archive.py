@@ -18,6 +18,32 @@ SPEC.loader.exec_module(archive)
 
 
 class EvidenceArchiveTests(unittest.TestCase):
+    def test_fast_credential_filter_preserves_unicode_and_ascii_rules(self):
+        samples = ['{"password":"example-secret"}', '{"prıvate_key":"example-secret"}',
+                   'https://example:example@example.invalid/', 'Bearer ' + 'X' * 20,
+                   '{"command":"CExampleCommand","token":123}', 'normal 只读观察']
+        for text in samples:
+            self.assertEqual(archive.contains_credentials(text), archive.SECRET.search(text) is not None)
+
+    def test_partial_export_objects_are_verified_before_reuse(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            source = base / "input"
+            source.mkdir()
+            raw = b'{"result":false}\n'
+            (source / 'record.json').write_bytes(raw)
+            previous = base / 'previous'
+            for store in ('local-vault', 'public'):
+                archive.put(previous / store / 'objects', raw)
+            expected = archive.sha(raw)
+            old = previous / 'public/objects' / expected[:2] / (expected + '.gz')
+            old.write_bytes(b'not gzip')
+            archive.build([('batch', source)], base / 'new', {}, 'a' * 40, reuse_from=[previous])
+            result = archive.verify(base / 'new/public/index.jsonl', base / 'new/public/objects')
+            self.assertEqual(result['verified_objects'], 1)
+            self.assertEqual(old.read_bytes(), b'not gzip')
+            self.assertTrue((base / 'new/local-vault/snapshot-journal.jsonl').is_file())
+
     def test_all_outcomes_deduplicate_and_restore(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)

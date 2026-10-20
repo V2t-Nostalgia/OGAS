@@ -199,7 +199,7 @@
 | `scripts/migration/migrate_from_v058.py` | 可审计迁移、哈希与代码地图维护工具。 | 从冻结的 IAG v0.5.8 仓库复制已验证生产文件并生成来源清单。 | `sha256`, `tracked_files`, `copy_one`, `source_commit`, `parse_args`, `main` | `新工程文件` |
 | `scripts/migration/migrate_runtime_config_v2.py` | 可审计迁移、哈希与代码地图维护工具。 | Add persistent-conversation defaults without replacing user credentials. | `migrate_config`, `main` | `tools/agent_runtime/migrate_config_v2.py` |
 | `scripts/release/build_release.py` | 仓库级配置、许可证或治理文件。 | Legacy installer packaging; not used for the OGAS source-only alpha tag. | `network_from_spec`, `ReleaseError`, `project_version`, `sha256_file`, `run`, `source_commit`, `tracked_files`, `recreate` | `新工程文件` |
-| `scripts/research/archive_evidence.py` | 仓库级配置、许可证或治理文件。 | Snapshot research files without changing originals; publish reviewed derivatives. | `sha`, `checked_digest`, `neutralize`, `public_copy`, `context`, `put`, `read_snapshot`, `build` | `新工程文件` |
+| `scripts/research/archive_evidence.py` | 仓库级配置、许可证或治理文件。 | Snapshot research files without changing originals; publish reviewed derivatives. | `sha`, `checked_digest`, `substitutions`, `contains_credentials`, `neutralize`, `public_copy`, `context`, `put` | `新工程文件` |
 | `scripts/validation/check_publication.py` | 仓库级配置、许可证或治理文件。 | Check the actual staged source tree, not ignored local research outputs. | `git`, `staged_files`, `relative_links`, `audit`, `main` | `新工程文件` |
 | `scripts/validation/run_tests.py` | 仓库级配置、许可证或治理文件。 | Run every repository-local unittest module without requiring pytest. | `test_modules`, `build_suite`, `selected_test_modules`, `main` | `新工程文件` |
 | `scripts/validation/tests/test_check_publication.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `PublicationCheckTests` | `新工程文件` |

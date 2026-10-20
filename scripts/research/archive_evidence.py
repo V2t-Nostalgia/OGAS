@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 from datetime import datetime, timezone
+from functools import lru_cache
 import gzip
 import hashlib
 import io
@@ -20,6 +21,8 @@ import ipaddress
 import json
 from pathlib import Path
 import re
+import os
+import shutil
 
 
 def sha(data: bytes) -> str:
@@ -42,19 +45,39 @@ CONTEXT_KEYS = {"build_id", "game_version", "steam_build_id", "sdk_fingerprint",
 SECRET = re.compile(r'''(?ix)(?:["']?(?:api[_-]?key|password|passwd|access[_-]?token|auth[_-]?token|client[_-]?secret|private[_-]?key)["']?\s*[:=]\s*["'])([^"'\r\n]{4,})(?:["'])|\b(?:ghp_|github_pat_|sk-proj-|sk-ant-)[A-Za-z0-9_-]{12,}|-----BEGIN\s+(?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9_.-]{16,}|https?://[^/\s:]+:[^@\s/]+@|--(?:password|api-key|auth-token)(?:=|\s+)\S{4,}''')
 ADDRESS = re.compile(r"(?<![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])")
 USER_PATH = re.compile(r"(?i)(?:[A-Z]:[/\\]+Users[/\\]+)[^/\\\s\"']+|/home/[^/\s\"']+")
+SECRET_HINTS = ("apikey", "api_key", "api-key", "password", "passwd", "accesstoken", "access_token",
+                "access-token", "authtoken", "auth_token", "auth-token", "clientsecret", "client_secret",
+                "client-secret", "privatekey", "private_key", "private-key", "private key", "ghp_",
+                "github_pat_", "sk-proj-", "sk-ant-", "bearer", "https://", "http://")
+
+
+@lru_cache(maxsize=16)
+def substitutions(items: tuple[tuple[str, str], ...]):
+    return re.compile("|".join(re.escape(old) for old, _ in items), re.I), {old.casefold(): new for old, new in items}
+
+
+def contains_credentials(text: str) -> bool:
+    if not text.isascii():
+        return SECRET.search(text) is not None
+    folded = text.casefold()
+    return any(hint in folded for hint in SECRET_HINTS) and SECRET.search(text) is not None
 
 
 def neutralize(text: str, policy: dict) -> str:
-    for old, new in policy.get("neutralize", {}).items():
-        text = re.sub(re.escape(old), lambda _: new, text, flags=re.IGNORECASE)
-    text = USER_PATH.sub("<LOCAL_USER>", text)
+    items = tuple(policy.get("neutralize", {}).items())
+    folded = text.casefold()
+    if items and (not text.isascii() or any(old.casefold() in folded for old, _ in items)):
+        pattern, replacements = substitutions(items)
+        text = pattern.sub(lambda match: replacements[match.group().casefold()], text)
+    if "/home/" in text or "users" in folded:
+        text = USER_PATH.sub("<LOCAL_USER>", text)
     def address(match):
         try:
             value = ipaddress.ip_address(match.group())
             return match.group() if value.is_loopback or value.is_unspecified else "<NETWORK_ADDRESS>"
         except ValueError:
             return match.group()
-    return ADDRESS.sub(address, text)
+    return ADDRESS.sub(address, text) if "." in text else text
 
 
 def public_copy(path: str, data: bytes, policy: dict) -> tuple[bytes | None, str]:
@@ -86,7 +109,7 @@ def public_copy(path: str, data: bytes, policy: dict) -> tuple[bytes | None, str
         text = data.decode("utf-8-sig")
     except UnicodeDecodeError:
         return None, "non_utf8_unreviewed"
-    if "\x00" in text or SECRET.search(text):
+    if "\x00" in text or contains_credentials(text):
         return None, "possible_credentials_or_binary_content"
     if any(secret and secret in text for secret in policy.get("never_publish", [])):
         return None, "private_value_present"
@@ -141,11 +164,25 @@ def context(data: bytes, suffix: str) -> list[dict]:
     return found
 
 
-def put(store: Path, data: bytes) -> str:
+def put(store: Path, data: bytes, reuse_stores=()) -> str:
     digest = sha(data)
     target = store / digest[:2] / (digest + ".gz")
     if not target.exists():
         target.parent.mkdir(parents=True, exist_ok=True)
+        for previous in reuse_stores:
+            candidate = previous / digest[:2] / (digest + ".gz")
+            if candidate.is_file():
+                try:
+                    with gzip.open(candidate, 'rb') as stream:
+                        if sha(stream.read()) != digest:
+                            continue
+                except (OSError, EOFError):
+                    continue
+                try:
+                    os.link(candidate, target)
+                except OSError:
+                    shutil.copyfile(candidate, target)
+                return digest
         with target.open("xb") as stream:
             stream.write(gzip.compress(data, compresslevel=6, mtime=0))
     return digest
@@ -161,11 +198,14 @@ def read_snapshot(path: Path) -> tuple[bytes, bool]:
     return data, False
 
 
-def build(roots: list[tuple[str, Path]], output: Path, policy: dict, source_commit: str, external_indexes=()) -> dict:
+def build(roots: list[tuple[str, Path]], output: Path, policy: dict, source_commit: str, external_indexes=(), reuse_from=()) -> dict:
     output.mkdir(parents=True, exist_ok=False)
     public, vault = output / "public", output / "local-vault"
     public.mkdir()
     vault.mkdir()
+    journal = (vault / 'snapshot-journal.jsonl').open('x', encoding='utf-8')
+    raw_reuse = [p / 'local-vault/objects' for p in reuse_from]
+    public_reuse = [p / 'public/objects' for p in reuse_from]
     counts, rows, original_rows, root_rows = Counter(), [], [], []
     for label, root in roots:
         root = root.resolve(strict=True)
@@ -177,7 +217,7 @@ def build(roots: list[tuple[str, Path]], output: Path, policy: dict, source_comm
             original = label + "/" + path.relative_to(root).as_posix()
             alias = neutralize(original, policy).replace("<", "_").replace(">", "_")
             data, stable = read_snapshot(path)
-            raw_sha = put(vault / "objects", data)
+            raw_sha = put(vault / "objects", data, raw_reuse)
             exported, disposition = public_copy(original, data, policy)
             row = {"path": alias, "entry": "paths/" + sha(alias.encode())[:2] + "/" + sha(alias.encode()) + ".md",
                    "original_sha256": raw_sha, "original_bytes": len(data), "original_location": "local_vault",
@@ -185,7 +225,7 @@ def build(roots: list[tuple[str, Path]], output: Path, policy: dict, source_comm
                    "validation_state": "not_inferred_from_format_or_IsValid",
                    "public_sha256": None, "object": None, "reported_context": []}
             if exported is not None:
-                digest = put(public / "objects", exported)
+                digest = put(public / "objects", exported, public_reuse)
                 row.update(public_sha256=digest, object="objects/" + digest[:2] + "/" + digest + ".gz",
                            reported_context=context(exported, path.suffix.lower()))
                 counts["public_bytes_uncompressed"] += len(exported)
@@ -195,6 +235,8 @@ def build(roots: list[tuple[str, Path]], output: Path, policy: dict, source_comm
             if not stable:
                 counts["unstable_snapshots"] += 1
             original_rows.append({**row, "original_path": original, "source_path": str(path)})
+            journal.write(json.dumps(original_rows[-1], ensure_ascii=True) + '\n')
+            journal.flush()
             rows.append(row)
             if counts["files"] % 200 == 0:
                 print(json.dumps({"files_processed": counts["files"], "original_bytes": counts["original_bytes"]}), flush=True)
@@ -229,6 +271,7 @@ def build(roots: list[tuple[str, Path]], output: Path, policy: dict, source_comm
     if len({r['path'] for r in rows}) != len(rows):
         raise ValueError('Neutralized archive paths collide; do not publish')
     write_jsonl(vault / "original-index.jsonl", original_rows)
+    journal.close()
     write_jsonl(public / "index.jsonl", rows)
     summary = {"schema_version": "ogas.evidence_archive.v1", "created_at_utc": datetime.now(timezone.utc).isoformat(),
                "archive_source_commit": source_commit, "historical_source_binding": "per_artifact_context_or_unknown; never retroactively assigned",
@@ -243,7 +286,6 @@ def build(roots: list[tuple[str, Path]], output: Path, policy: dict, source_comm
         pointer.parent.mkdir(parents=True, exist_ok=True)
         link = "No public original download. Retained in the restricted local vault."
         if row["object"]:
-            import os
             relative = Path(os.path.relpath(public / row["object"], pointer.parent)).as_posix()
             link = f"[Download the gzip research object]({relative}). Decompress and verify the public SHA-256."
         text = f"# Research Evidence\n\nPath: `{row['path']}`\n\nAccess: `{row['access']}`\n\nOriginal SHA-256: `{row['original_sha256']}`\n\nPublic SHA-256: `{row['public_sha256']}`\n\n{link}\n\nA redacted derivative is not the original. This entry does not promote a Command or establish causal pairing.\n"
@@ -315,6 +357,7 @@ def main():
     export.add_argument("--source-commit", required=True)
     export.add_argument("--private-policy", type=Path)
     export.add_argument("--external-index", type=Path, action="append", default=[])
+    export.add_argument("--reuse-from", type=Path, action="append", default=[], help="Reuse hash-verified CAS objects from a prior export; never overwrite it")
     export.add_argument("--sensitive-input", action="store_true", help="Read an extra secret using getpass, never persist it")
     check = sub.add_parser("verify")
     check.add_argument("--index", type=Path, required=True)
@@ -332,7 +375,7 @@ def main():
         if args.sensitive_input:
             import getpass
             policy.setdefault('never_publish', []).append(getpass.getpass('Private value to exclude (not stored): '))
-        result = build(roots, args.output, policy, args.source_commit, args.external_index)
+        result = build(roots, args.output, policy, args.source_commit, args.external_index, args.reuse_from)
     elif args.mode == "verify":
         result = verify(args.index, args.objects, args.original)
     else:

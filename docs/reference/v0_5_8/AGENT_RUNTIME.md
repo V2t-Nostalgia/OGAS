@@ -84,7 +84,7 @@ Python 环境内只安装固定版本的 `NetfilterQueue`、`opencv-python-headl
 - `libnetfilter-queue-dev`
 - 编译 `NetfilterQueue` 所需的基础工具
 
-要求 Python 3.11 或更高版本；Ubuntu 24.04 的系统 Python 可直接使用。可用 `IAG_PYTHON` 和 `IAG_VENV_ROOT` 覆盖解释器与虚拟环境路径。`xdotool` 通过 X11/XTEST 执行确定性点击；第一版不使用 OCR，也不让视觉模型识别按钮。独立 Release 的完整步骤见 [../../docs/UBUNTU_AGENT_README.md](../../docs/UBUNTU_AGENT_README.md)。
+要求 Python 3.11 或更高版本；Ubuntu 24.04 的系统 Python 可直接使用。可用 `IAG_PYTHON` 和 `IAG_VENV_ROOT` 覆盖解释器与虚拟环境路径。`xdotool` 通过 X11/XTEST 执行确定性点击；第一版不使用 OCR，也不让视觉模型识别按钮。独立 Release 的完整步骤见 [UBUNTU_AGENT_README.md](UBUNTU_AGENT_README.md)。
 
 ## Windows 代理端
 
@@ -251,7 +251,7 @@ DeepSeek 与其他 Chat Completions 接口本身不保存会话状态。运行�
 
 启用后，模型获得 `search_web`、`fetch_page` 和 `search_stellaris_wiki`。通用搜索连接 SearXNG，正文提取连接 Crawl4AI，Wiki 查询使用 MediaWiki Action API。`fetch_page` 只能读取本轮检索实际返回的 URL，且受域名白名单、私网地址拒绝、正文长度和超时限制。论坛攻略可以影响判断，但不能创建候选、提供对象 ID 或直接触发建设。
 
-自托管服务的当前官方模板、JSON 输出要求、鉴权和连通性检查见 [../../docs/RESEARCH_SERVICES.md](../../docs/RESEARCH_SERVICES.md)。
+自托管服务的当前官方模板、JSON 输出要求、鉴权和连通性检查见 [RESEARCH_SERVICES.md](RESEARCH_SERVICES.md)。
 
 ## DeepSeek 模板
 

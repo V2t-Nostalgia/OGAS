@@ -36,6 +36,11 @@ game executables, full saves/databases, screenshots and uncleared external
 source/artwork are withheld rather than guessed safe. The export policy and
 manual review are publication decisions, not proof of ownership or legal advice.
 
+Exports require a new output directory. The restricted `snapshot-journal.jsonl`
+records progress if publication is interrupted. `build --reuse-from OLD_EXPORT`
+can reuse prior CAS objects only after checking their uncompressed hashes;
+it still reviews current inputs and never overwrites the prior export.
+
 ## Retrieve Actual Data
 
 ```bash
