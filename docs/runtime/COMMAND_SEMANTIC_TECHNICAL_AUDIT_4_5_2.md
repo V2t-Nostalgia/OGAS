@@ -11,11 +11,11 @@
 
 最终轮次：`.runtime-evidence/semantic-audit-4.5.2-20261020-01/pass-05/`。
 
-- [全目录结构化审计](../research/EVIDENCE_ARCHIVE.md)：351 项的每个字段来源、类型、setter、缺口、Factory/IsValid/Execute/析构邻域、Producer、尝试过的恢复路径和证据 RVA。
-- [351 项可读表](../research/EVIDENCE_ARCHIVE.md)：逐项主分类、输入构造能力、冻结夹具计划数和字段要求。
-- [候选报告](../research/EVIDENCE_ARCHIVE.md)：有界候选、脚本/原生约束、历史反馈，以及与技术阻碍分开的候选搜索诊断。
-- [共享恢复清单](../research/EVIDENCE_ARCHIVE.md)：55 组共享能力/参数要求、受影响 Command 和精确 RVA，不是逐命令适配清单。
-- [最终一致性与测试记录](../research/EVIDENCE_ARCHIVE.md)：SDK 指纹、35 份代码快照核对、425 份本地脚本/GUI/本地化来源归档、测试及零原生调用声明。
+- [全目录结构化审计](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/76/76cc296c57eb7dd3b8103113f7ab8ab0e321074c1579f49cf048e9dd79b2add1.md)：351 项的每个字段来源、类型、setter、缺口、Factory/IsValid/Execute/析构邻域、Producer、尝试过的恢复路径和证据 RVA。
+- [351 项可读表](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/1b/1bd3d60de947480794ce2e37e9decbc7cde7bc3acbceff311878b2cd03ec395c.md)：逐项主分类、输入构造能力、冻结夹具计划数和字段要求。
+- [候选报告](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/3d/3d9560a451f152ca6be24594c8afbba45bbadeebb062353f38cf8d263c4cdef3.md)：有界候选、脚本/原生约束、历史反馈，以及与技术阻碍分开的候选搜索诊断。
+- [共享恢复清单](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/40/40c63b1ed8ca89289226b070fd18f511dd36730c08e1f11e978e89aaeed73efe.md)：55 组共享能力/参数要求、受影响 Command 和精确 RVA，不是逐命令适配清单。
+- [最终一致性与测试记录](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/47/47ed82c1b75c63dce61015aac86bd249d5729f2825b339b693bc17a049055fc9.md)：SDK 指纹、35 份代码快照核对、425 份本地脚本/GUI/本地化来源归档、测试及零原生调用声明。
 
 精确 Linux ELF Build ID：`121ecb516cbc5f1d39917fbcc36620534384e2c2`。
 SHA-256：`1c4c79a0ef8af7b984b797606373eb68b60fe421e4ef54c20e12e4a9398ba86b`。
@@ -23,6 +23,8 @@ SHA-256：`1c4c79a0ef8af7b984b797606373eb68b60fe421e4ef54c20e12e4a9398ba86b`。
 
 冻结存档为 `2384.01.25.sav`，SHA-256
 `c5cfa0fce3e434a704a0a7bebaaa0a7c9c4f956376ee1334a96d4f481c6c39e2`。
+公开归档保留上述本地脚本/GUI/本地化原文的哈希和访问索引；425 份外部原文因分发权限
+保留为受限资料，不与项目自有源码快照混同，也不声称可以公开下载。
 存档含 9 条 Mod 元数据；本机外部基础文件不等于这个世界的实际有效 Mod 定义数据库。
 本文的“存在对象”只指历史夹具，不是当前游戏，也不证明对象归属、操作可用或游戏规则成立。
 

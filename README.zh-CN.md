@@ -76,6 +76,8 @@ Application 表达行动意图，不负责 opcode、网络分帧或 Hook 地址�
 [4.5.2 验收记录](docs/runtime/PRODUCER_VALIDATION_ACCEPTANCE_4_5_2.md)与
 [研究证据访问指南](docs/research/EVIDENCE_ARCHIVE.md)。归档区分公开原件、脱敏副本
 和受限原件；缺失的来源关系标为未知，不补写成事实。
+[独立证据仓库](https://github.com/V2t-Nostalgia/OGAS-research-evidence)提供签名索引、
+原始哈希和 13,584 条可下载研究路径；受限游戏输入与私人资料明确标注，不予再分发。
 
 ## 从源码开始
 

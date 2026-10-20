@@ -2,11 +2,310 @@
   "schema_version": "ogas.evidence_publication.v1",
   "version": "v0.6.0-alpha.1",
   "python_version": "0.6.0a1",
-  "publication_state": "in_progress_not_yet_tagged",
+  "publication_state": "evidence_published_and_independently_download_verified",
+  "recorded_at_utc": "2026-10-20T19:05:23.725837+00:00",
   "source_repository": "https://github.com/V2t-Nostalgia/OGAS",
+  "source_version_ref": "refs/tags/v0.6.0-alpha.1",
+  "source_ref_binding": "The signed source tag enclosing this receipt is the final source binding; resolve its commit rather than assigning a self-referential hash in this file. Remote main/tag verification is the final publication step.",
+  "v0_5_10_base_commit": "29b4dc5d1f591bfd96aa8b3dde0b6694fb26ee7c",
+  "signed_research_source_checkpoint": "b88002e48376785f9608f7e501863388bd124597",
+  "source_corrections_through": "516963fff78643a1e789da9948850be64c0f66b9",
   "archive_repository": "https://github.com/V2t-Nostalgia/OGAS-research-evidence",
+  "archive_commit": "ccd7bfdfa33e749d2ea3bffd4586573a629ee08b",
+  "archive_browse_url": "https://github.com/V2t-Nostalgia/OGAS-research-evidence/tree/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b",
+  "archive_git_pack_bytes_observed": 994758031,
+  "inventories": {
+    "primary": {
+      "schema_version": "ogas.evidence_archive.v1",
+      "created_at_utc": "2026-10-20T18:24:14.169124+00:00",
+      "archive_source_commit": "ebe9e9198c6df40c6bbdd97fe4a41ab38f678b04",
+      "historical_source_binding": "per_artifact_context_or_unknown; never retroactively assigned",
+      "roots": [
+        {
+          "label": "runtime-evidence",
+          "files_at_enumeration": 3914
+        },
+        {
+          "label": "local-scratch",
+          "files_at_enumeration": 635
+        },
+        {
+          "label": "artifacts",
+          "files_at_enumeration": 29
+        },
+        {
+          "label": "local-build",
+          "files_at_enumeration": 108
+        },
+        {
+          "label": "pre-publication-reports",
+          "files_at_enumeration": 46
+        },
+        {
+          "label": "remote",
+          "files_at_enumeration": 8497
+        },
+        {
+          "label": "remote",
+          "files_at_enumeration": 2046
+        },
+        {
+          "label": "publication-validation",
+          "files_at_enumeration": 167
+        },
+        {
+          "label": "prototype-art-source",
+          "files_at_enumeration": 3
+        },
+        {
+          "label": "prototype-art-gfx",
+          "files_at_enumeration": 2
+        }
+      ],
+      "counts": {
+        "private_policy_or_third_party_content": 428,
+        "binary_save_capture_image_or_database_not_cleared_for_distribution": 746,
+        "public_original": 9574,
+        "public_redacted_derivative_original_retained": 3975,
+        "game_state_or_external_source_redistribution_not_cleared": 89,
+        "restricted_after_publication_review": 519,
+        "unreviewed_format": 75,
+        "possible_credentials_or_binary_content": 40,
+        "non_utf8_unreviewed": 1,
+        "remote_restricted_original_not_published": 16964,
+        "files": 32411,
+        "original_bytes": 54350245449,
+        "unstable_snapshots": 0,
+        "missing_original_hashes": 0,
+        "public_bytes_uncompressed": 2646776030
+      },
+      "index_sha256": "aae549833ede5a95da1b45a07a2e4873a41d839eae5002f1de05a3b5e52f89f2",
+      "unique_public_objects": 9276,
+      "original_index_access": "local_restricted; originals not deleted",
+      "original_index_sha256": "d5d4936874d4f9d2fa5ac0b1c80e28c74b31855d9220330f6f8e6e4b1636afd5",
+      "evidence_levels": "raw observations, automated reports, human interpretations and live verification remain distinct"
+    },
+    "supplemental": {
+      "schema_version": "ogas.evidence_archive.v1",
+      "created_at_utc": "2026-10-20T18:36:54.197625+00:00",
+      "archive_source_commit": "59f55cb30571fd6e4563d35ca8de53d8e9ef1d7e",
+      "historical_source_binding": "per_artifact_context_or_unknown; never retroactively assigned",
+      "roots": [
+        {
+          "label": "supplemental",
+          "files_at_enumeration": 31
+        }
+      ],
+      "counts": {
+        "public_bytes_uncompressed": 423421,
+        "public_original": 29,
+        "files": 31,
+        "original_bytes": 427820,
+        "private_policy_or_third_party_content": 1,
+        "public_redacted_derivative_original_retained": 1
+      },
+      "index_sha256": "415c7fe9588956f84a963636438ffa9a34f2ecba3ddd42831f7b59e2f620cd9f",
+      "unique_public_objects": 30,
+      "original_index_access": "local_restricted; originals not deleted",
+      "original_index_sha256": "b876594837d4fdfb3672f14ddaba8f18e3898fd7d56773ffb9cd337953c7b13c",
+      "evidence_levels": "raw observations, automated reports, human interpretations and live verification remain distinct"
+    },
+    "publication_checks": {
+      "schema_version": "ogas.evidence_archive.v1",
+      "created_at_utc": "2026-10-20T18:52:17.210646+00:00",
+      "archive_source_commit": "516963fff78643a1e789da9948850be64c0f66b9",
+      "historical_source_binding": "per_artifact_context_or_unknown; never retroactively assigned",
+      "roots": [
+        {
+          "label": "publication-checks",
+          "files_at_enumeration": 6
+        }
+      ],
+      "counts": {
+        "public_bytes_uncompressed": 18252,
+        "public_original": 2,
+        "files": 6,
+        "original_bytes": 33561,
+        "possible_credentials_or_binary_content": 1,
+        "public_redacted_derivative_original_retained": 3
+      },
+      "index_sha256": "c67b32cda7170b99310df0b262543af0c62e5477f6457fddb9aa30a4f396688f",
+      "unique_public_objects": 5,
+      "original_index_access": "local_restricted; originals not deleted",
+      "original_index_sha256": "38d7ed4e02683ac729e7553dde3ea1f4c3667f1f96e1dc05cb9b13dc9fd21a09",
+      "evidence_levels": "raw observations, automated reports, human interpretations and live verification remain distinct"
+    }
+  },
+  "anonymous_download_verification": {
+    "verified_at_utc": "2026-10-20T19:04:10.830280+00:00",
+    "archive_commit": "ccd7bfdfa33e749d2ea3bffd4586573a629ee08b",
+    "clone_method": "anonymous_https_no_credentials_or_global_git_config",
+    "anonymous_raw_index_url": "https://raw.githubusercontent.com/V2t-Nostalgia/OGAS-research-evidence/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/index.jsonl",
+    "anonymous_raw_index_bytes": 21125808,
+    "indexes": {
+      "primary/": {
+        "mapped_files": 13549,
+        "verified_objects": 9276,
+        "verified_uncompressed_bytes": 1967264136,
+        "remote_originals_not_locally_reverified": 0,
+        "index_sha256": "aae549833ede5a95da1b45a07a2e4873a41d839eae5002f1de05a3b5e52f89f2",
+        "verified_pointer_links": 13549
+      },
+      "supplemental/": {
+        "mapped_files": 30,
+        "verified_objects": 30,
+        "verified_uncompressed_bytes": 423421,
+        "remote_originals_not_locally_reverified": 0,
+        "index_sha256": "415c7fe9588956f84a963636438ffa9a34f2ecba3ddd42831f7b59e2f620cd9f",
+        "verified_pointer_links": 30
+      },
+      "publication-checks/": {
+        "mapped_files": 5,
+        "verified_objects": 5,
+        "verified_uncompressed_bytes": 18252,
+        "remote_originals_not_locally_reverified": 0,
+        "index_sha256": "c67b32cda7170b99310df0b262543af0c62e5477f6457fddb9aa30a4f396688f",
+        "verified_pointer_links": 5
+      }
+    },
+    "totals": {
+      "indexed_paths": 32448,
+      "original_bytes_before_deduplication": 54350706830,
+      "downloadable_paths": 13584
+    },
+    "unique_public_digests": 9298,
+    "checksum_files_verified": 41779,
+    "all_four_signature_checks_passed": true,
+    "original_byte_samples": [
+      {
+        "path": "runtime-evidence/constraint-i64-4.5.2-20261020-01/coordinate-command-preflight.json",
+        "original_sha256": "7fd941e9c75a011311f59e694b9a6f8c682f7edbcf7d96e38ca8c763e0c26005",
+        "bytes": 525
+      },
+      {
+        "path": "runtime-evidence/constraint-i64-4.5.2-20261020-01/cpp-builder-build.txt",
+        "original_sha256": "03aaf1afc98f9eaf27a82eb4fade179d76fa1555ef9370c4ffc20fc0710e583d",
+        "bytes": 26
+      }
+    ],
+    "game_calls": 0,
+    "restricted_original_downloads_claimed": false
+  },
+  "download_verification_attempts": [
+    {
+      "attempt": 1,
+      "result": "git_verifier_public_key_unavailable",
+      "retained_log_sha256": "61c994a1e58db5982ef2b6d5c3f9eb864d4b89993997e8aadff347611e22b21d",
+      "diagnosis": "Fresh clone used bundled Git GPG rather than the configured signing-key GPG. Index, objects and checksums had passed. Selecting the existing GPG executable verified the same key and unmodified downloaded files."
+    },
+    {
+      "attempt": 2,
+      "result": "all_objects_checksums_pointers_and_signatures_passed"
+    }
+  ],
+  "validation": {
+    "source_commit": "516963fff78643a1e789da9948850be64c0f66b9",
+    "scope": "Offline publication verification; no game connection or injection.",
+    "python": {
+      "modules": 75,
+      "tests": 678,
+      "integrated_final_result": "passed_without_skips",
+      "log": "python-regression-final-integrated-02.log",
+      "optional_integrations": [
+        "CWTools bridge",
+        "C++ mock wire and i64 boundary round trips",
+        "complete coordinate candidate-report communication preflight"
+      ],
+      "earlier_attempts_retained": [
+        {
+          "log": "python-regression-final.log",
+          "result": "passed_with_7_optional_tests_skipped"
+        },
+        {
+          "log": "python-regression-final-integrated.log",
+          "result": "2_harness_configuration_errors",
+          "reason": "Pointed to summarized preflight instead of full candidate report, and builder test executable instead of producer wire fixture; no source change needed."
+        }
+      ]
+    },
+    "native": {
+      "windows": "4_of_4_CTest_passed",
+      "linux": "4_of_4_CTest_and_1_of_1_research_rotation_test_passed",
+      "mode": "ordinary_test_compilation_only_not_release_packaging"
+    },
+    "static_checks": {
+      "ruff_ci_scope": "passed",
+      "python_compileall_src_apps_scripts_services": "passed",
+      "node_check_three_maintained_scripts": "passed",
+      "early_ruff_command_typo": "Nonexistent tools directory produced E902; corrected to the actual CI paths and passed."
+    },
+    "github_ci": [
+      {
+        "run": 39468679147,
+        "result": "linux_missing_Qt_import_library_failure_preserved"
+      },
+      {
+        "run": 39469219592,
+        "result": "success_both_platforms"
+      },
+      {
+        "run": 39472696581,
+        "result": "success_both_platforms"
+      },
+      {
+        "run": 39473797701,
+        "result": "success_both_platforms"
+      },
+      {
+        "run": 39475950219,
+        "result": "success_both_platforms"
+      },
+      {
+        "run": 39476535764,
+        "result": "private_key_regex_regression_failure_preserved"
+      },
+      {
+        "run": 39476698005,
+        "result": "success_both_platforms_after_regex_correction"
+      }
+    ],
+    "limitations": "This validates source, mocks, codec and archive tooling, not new live gameplay or production admission. Historical reports remain at their original evidence levels."
+  },
+  "signing_fingerprint": "FAA5513C23C3F379F56EF061B2CFB0BD581F74A1",
+  "signing_policy": "Existing configured key; DCO Signed-off-by, commit signatures and annotated tag signature are separate requirements. No temporary key.",
+  "public_review": {
+    "verified_objects": 9293,
+    "flags": [],
+    "scope": "Every referenced public object, including decompressed rotated JSONL segments; no secret values in this report."
+  },
+  "restricted_retention": {
+    "originals_deleted_or_overwritten": false,
+    "full_original_path_mapping": "restricted maintainer storage, content-addressed hashes recorded in archive manifests",
+    "remote_hardlink_cas_entries": 23158,
+    "remote_hardlink_caveat": "Protects against pathname removal, not in-place mutation; original hashes remain required.",
+    "remote_separately_copied_hash_verified_entries": 4348,
+    "changing_status_snapshot_bytes_retained_locally": 865,
+    "private_vault_local_verification": {
+      "mapped_files": 15447,
+      "unique_objects": 10520,
+      "uncompressed_bytes": 3771731482,
+      "remote_originals_not_locally_reverified": 16964
+    },
+    "unpublished_material": [
+      "game executables and binaries",
+      "full saves and private game state",
+      "unreviewed third-party source and artwork",
+      "private configurations",
+      "possible credentials"
+    ],
+    "access": "Restricted originals retained; access subject to privacy and redistribution review, not promised as public downloads."
+  },
+  "historical_source_binding": "Only original receipts/snapshots establish historical source, input and tool associations; missing provenance remains unknown. Current publication environment is not retroactively assigned to historical batches.",
   "release_created": false,
+  "release_assets_used": false,
   "installers_built": false,
+  "executables_distributed": false,
   "game_state_modified": false,
-  "historical_source_binding": "Only observed commits/snapshots are attributed; missing provenance remains unknown."
+  "runtime_injections": 0,
+  "production_capability_promotions": 0
 }

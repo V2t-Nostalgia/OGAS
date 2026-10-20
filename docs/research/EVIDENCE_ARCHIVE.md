@@ -6,8 +6,30 @@
 The source repository and the research data have different publication boundaries.
 Large generated files do not belong in the source Git history. This publication
 uses the independent [OGAS research-evidence repository](https://github.com/V2t-Nostalgia/OGAS-research-evidence).
-The exact deployed revision, checksums and download verification are recorded in
-[EVIDENCE_PUBLICATION.json](EVIDENCE_PUBLICATION.json), completed before the alpha tag.
+The signed publication snapshot is
+[`ccd7bfdfa33e749d2ea3bffd4586573a629ee08b`](https://github.com/V2t-Nostalgia/OGAS-research-evidence/tree/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b).
+Checksums and independent download verification are recorded in
+[EVIDENCE_PUBLICATION.json](EVIDENCE_PUBLICATION.json).
+
+## Published Inventory
+
+The [primary index](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/index.jsonl)
+covers 32,411 paths / 54,350,245,449 original bytes before deduplication. It provides
+9,574 exact originals and 3,975 labeled derivatives, backed by 9,276 unique gzip
+objects. The [supplemental index](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/supplemental/index.jsonl)
+adds 31 paths, including project-source archive members and publication receipts;
+30 are downloadable. The [publication-check index](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/publication-checks/index.jsonl)
+adds six paths, five downloadable, retaining the final regression and earlier
+harness errors. The combined inventory is 32,448 paths / 54,350,706,830 bytes;
+13,584 paths have public data. These totals include repeated historical paths
+and duplicate content; they are not unique data volume or successful experiment
+counts. Withheld files are indexed but not disguised as available downloads.
+
+Use [BATCHES.json](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/BATCHES.json)
+for path-group navigation and
+[PROVENANCE.json](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/PROVENANCE.json)
+for the actual source/tool bindings. Neither assigns a verification level merely
+from a filename, group or extracted context value.
 
 ## What the Index Means
 
@@ -49,9 +71,16 @@ The pre-review export and restricted originals remain intact.
 
 ```bash
 git clone https://github.com/V2t-Nostalgia/OGAS-research-evidence.git ../OGAS-research-evidence
+git -C ../OGAS-research-evidence checkout ccd7bfdfa33e749d2ea3bffd4586573a629ee08b
 python scripts/research/archive_evidence.py verify \
   --index ../OGAS-research-evidence/index.jsonl \
   --objects ../OGAS-research-evidence/objects
+python scripts/research/archive_evidence.py verify \
+  --index ../OGAS-research-evidence/supplemental/index.jsonl \
+  --objects ../OGAS-research-evidence/supplemental/objects
+python scripts/research/archive_evidence.py verify \
+  --index ../OGAS-research-evidence/publication-checks/index.jsonl \
+  --objects ../OGAS-research-evidence/publication-checks/objects
 python scripts/research/archive_evidence.py restore \
   --index ../OGAS-research-evidence/index.jsonl \
   --objects ../OGAS-research-evidence/objects --output NEW_RESTORED_DIRECTORY
@@ -63,6 +92,13 @@ capture already compressed in the original experiment, restoring the object
 recovers that original gzip file; decompress that file to inspect its records.
 A public derivative does not reconstruct the private original. Read access
 status before claiming original-byte reproduction.
+
+`CONTENTS.sha256` covers every published file except itself and its detached
+signature. The index, checksum manifest, toolchain receipt and archive commit are
+signed with the existing source-signing key. Verify the fingerprint independently:
+`FAA5513C23C3F379F56EF061B2CFB0BD581F74A1`; an included key alone is not a trust
+decision. The archive README gives signature commands. Original byte preservation
+uses `* -text`, including CRLF where present; do not normalize before hash checks.
 
 Use the source Git commit, exact game version, ELF Build ID/PE identity, SDK
 fingerprint, input hashes and tool versions in the receipts and artifacts.

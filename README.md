@@ -88,6 +88,9 @@ Read the [alpha notes](docs/releases/v0.6.0-alpha.1.md),
 and [research evidence access guide](docs/research/EVIDENCE_ARCHIVE.md).
 The archive distinguishes public originals, redacted derivatives and withheld
 originals. Missing provenance is marked unknown, not reconstructed as fact.
+The [independent evidence repository](https://github.com/V2t-Nostalgia/OGAS-research-evidence)
+provides signed indexes, original hashes and 13,584 downloadable research paths;
+restricted game/private inputs are explicitly identified, not redistributed.
 
 ## Get Started From Source
 

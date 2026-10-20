@@ -155,8 +155,8 @@ all nonzero world identities agree. The game remained alive after completion.
 - Remote evidence: `<RESEARCH_HOME>/iag-captures/sdk-batch-20261019-01/`.
 - Preserved source/build: `/tmp/iag-sdk-batch-20261019-01/` (do not rebuild the
   mapped shared-library file while this game process is running).
-- Local [complete report](../research/EVIDENCE_ARCHIVE.md)
-  and [per-command table](../research/EVIDENCE_ARCHIVE.md).
+- Local [complete report](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/50/504902766beb17eb9025e6523c35e8ef3cb358e783ffeece86ef730b5383c4d3.md)
+  and [per-command table](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/6c/6cdf682f8cc94c4786995ab28b75b9a0241893c42a70408c01fbde5368c4051a.md).
 
 | Measured coverage | Count |
 |---|---:|
@@ -256,6 +256,6 @@ their maxima were **246 / 159 us**. As above, these are elapsed timing fields,
 not CPU usage percentages or a profiling-overhead benchmark.
 
 The paused JSON report is
-[`paused-batch/report.json`](../research/EVIDENCE_ARCHIVE.md);
+[`paused-batch/report.json`](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/49/498606de0b8f65cee1fd83780441cd8acb6dc10517611d288ac496896efde467.md);
 its full per-command table and journal are alongside it. `post_batch_health.log`
 preserves the surviving process, mapped library and runtime-ready log line.

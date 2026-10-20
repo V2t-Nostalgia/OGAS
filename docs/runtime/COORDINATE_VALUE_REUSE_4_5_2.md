@@ -7,9 +7,9 @@
 共享 NativeCommandBuilder 和精确 Linux ELF；不访问进程、不调用原生函数、不修改生产 Action 或安装生成头文件。
 
 最终证据目录：`.runtime-evidence/coordinate-reuse-4.5.2-20261020-01/pass-02/`。
-[全目录新分类及通信 gate 状态](../research/EVIDENCE_ARCHIVE.md)、
-[逐字段审计](../research/EVIDENCE_ARCHIVE.md)、
-[最终复核记录](../research/EVIDENCE_ARCHIVE.md)。
+[全目录新分类及通信 gate 状态](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/e5/e59988d9a8a1fe46dc953709c4d2f82b480607ff8c5a1522253f0f6b9a440a1a.md)、
+[逐字段审计](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/4e/4e895ef9ab28faae6bbc1ff4df1ebaadb91b9b4d5eb9fb0ebe4ea523952f1c1c.md)、
+[最终复核记录](https://github.com/V2t-Nostalgia/OGAS-research-evidence/blob/ccd7bfdfa33e749d2ea3bffd4586573a629ee08b/paths/de/de3799cc0aa4d50d9c935a4331975d27e1f29e97889b7fad6b46b2ad0929baa1.md)。
 所有旧证据、存档、配置和 checkpoint 保留。
 
 ## 1. 直接复用的能力
