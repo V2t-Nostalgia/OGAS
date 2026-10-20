@@ -1,5 +1,8 @@
 # Native Fleet Attack Hook: Stellaris 4.4.6
 
+> Publication: original/local evidence paths below are provenance labels, not Git downloads. Use the [indexed archive and access status](../research/EVIDENCE_ARCHIVE.md); public copies may be privacy-redacted and originals remain retained.
+
+
 This note records the production-runtime evidence for semantic action
 `attack_fleet.v1`. It applies only to Stellaris `4.4.6 (fdde)` with ELF build
 ID `c6969e60fd81d738948222a94c0b5a0841abbffc`.

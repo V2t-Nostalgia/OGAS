@@ -197,7 +197,7 @@ class UploaderGUI:
         self.config_path = config_path.resolve()
         self.config = read_config(self.config_path)
         self.root = tk.Tk()
-        self.root.title("灰风 · 房主执行桥")
+        self.root.title("OGAS · 房主执行桥")
         self.root.geometry("790x610")
         self.root.minsize(720, 540)
         self.root.protocol("WM_DELETE_WINDOW", self.close)
@@ -243,7 +243,7 @@ class UploaderGUI:
 
         title = ttk.Label(
             outer,
-            text="灰风 · 房主执行桥",
+            text="OGAS · 房主执行桥",
             font=("Microsoft YaHei UI", 18, "bold"),
         )
         title.pack(anchor=W)
@@ -370,7 +370,7 @@ class UploaderGUI:
             self.server_var.set(display_server_url(server_url))
             self.append_log(f"设置已保存：{server_url}")
             if not silent:
-                messagebox.showinfo("灰风存档上传器", "设置已保存。")
+                messagebox.showinfo("OGAS存档上传器", "设置已保存。")
             return True
         except Exception as error:
             messagebox.showerror("无法保存设置", str(error))
@@ -415,7 +415,7 @@ class UploaderGUI:
 
     def launch_overlay(self) -> None:
         if self.overlay_process is not None and self.overlay_process.poll() is None:
-            messagebox.showinfo("灰风游戏叠加层", "游戏叠加层已经在运行。")
+            messagebox.showinfo("OGAS游戏叠加层", "游戏叠加层已经在运行。")
             return
         if not self.save_settings(silent=True):
             return
@@ -633,7 +633,7 @@ def main() -> int:
         try:
             import tkinter.messagebox as messagebox_module
 
-            messagebox_module.showerror("灰风存档上传器", str(error))
+            messagebox_module.showerror("OGAS存档上传器", str(error))
         except Exception:
             pass
         return 1

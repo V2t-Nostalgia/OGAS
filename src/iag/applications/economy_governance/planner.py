@@ -17,7 +17,7 @@ CONTENT_PACK_ROOT = vanilla_content_pack_root()
 CAPABILITIES_PATH = CONTENT_PACK_ROOT / "mappings" / "capabilities.json"
 STRATEGY_PATH = CONTENT_PACK_ROOT / "prompts" / "stellaris_4_4_sources.md"
 
-SYSTEM_PROMPT = """You are the domestic planning agent for Imperial Auto Governor.
+SYSTEM_PROMPT = """You are the domestic planning agent for OGAS.
 
 Review the complete current Stellaris save state, version-specific strategy references,
 the operator's current instructions, and the legal candidates. Select at most one build.

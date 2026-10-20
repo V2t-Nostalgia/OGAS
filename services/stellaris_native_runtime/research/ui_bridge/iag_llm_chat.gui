@@ -68,7 +68,7 @@ guiTypes = {
             borderSize = { x = 0 y = 0 }
             maxWidth = 560
             maxHeight = 24
-            text = "IAG"
+            text = "OGAS"
             text_color_code = "E"
             alwaysTransparent = yes
         }
@@ -137,7 +137,7 @@ guiTypes = {
             position = { x = 12 y = 18 }
             size = { x = 154 y = 154 }
             quadTextureSprite = "GFX_invisible"
-            pdx_tooltip = "IAG Strategic Communications"
+            pdx_tooltip = "OGAS Strategic Communications"
             clicksound = confirmation
             oversound = mouse_over
         }
@@ -187,7 +187,7 @@ guiTypes = {
             borderSize = { x = 0 y = 0 }
             maxWidth = 238
             maxHeight = 20
-            text = "IAG"
+            text = "OGAS"
             text_color_code = "B"
             alwaysTransparent = yes
         }
@@ -254,7 +254,7 @@ guiTypes = {
             borderSize = { x = 0 y = 0 }
             maxWidth = 840
             maxHeight = 20
-            text = "LOCAL IAG CONTACTS // PRIVATE APPLICATION THREADS"
+            text = "LOCAL OGAS CONTACTS // PRIVATE APPLICATION THREADS"
             text_color_code = "S"
         }
 

@@ -4966,7 +4966,7 @@ def main() -> int:
         context.load_cert_chain(args.tls_cert, args.tls_key)
         server.socket = context.wrap_socket(server.socket, server_side=True)
         scheme = "https"
-    print(f"IAG console listening on {scheme}://{args.host}:{args.port}")
+    print(f"OGAS console listening on {scheme}://{args.host}:{args.port}")
     try:
         server.serve_forever(poll_interval=0.25)
     except KeyboardInterrupt:

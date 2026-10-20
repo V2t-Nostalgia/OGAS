@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-click Windows launcher for the Imperial Auto Governor agent console."""
+"""One-click Windows launcher for the OGAS agent console."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-APP_TITLE = "灰风内政执行端 / IAG Windows Agent"
+APP_TITLE = "OGAS Windows Agent"
 DEFAULT_RUNTIME_ROOT = (
     Path(os.environ.get("LOCALAPPDATA", Path.home())) / "ImperialAutoGovernor"
 )
@@ -394,7 +394,7 @@ class Launcher:
     def _layout(self) -> None:
         frame = self.ttk.Frame(self.root, padding=20)
         frame.pack(fill="both", expand=True)
-        self.ttk.Label(frame, text="灰风内政执行端", style="Title.TLabel").grid(
+        self.ttk.Label(frame, text="OGAS 专业 Agent 控制台", style="Title.TLabel").grid(
             row=0, column=0, columnspan=3, sticky="w"
         )
         self.ttk.Label(
@@ -427,7 +427,7 @@ class Launcher:
             side="left", padx=(0, 8)
         )
         self.start_button = self.ttk.Button(
-            button_row, text="启动灰风", style="Accent.TButton", command=self.start
+            button_row, text="启动 OGAS", style="Accent.TButton", command=self.start
         )
         self.start_button.pack(side="left", padx=8)
         self.stop_button = self.ttk.Button(

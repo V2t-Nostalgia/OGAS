@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import unittest
@@ -61,10 +62,39 @@ class NativeRuntimeLayoutTests(unittest.TestCase):
 
     def test_version_profiles_are_explicit_build_inputs(self) -> None:
         cmake = (RUNTIME_ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
-        profiles = sorted((RUNTIME_ROOT / "versions").glob("*.cpp"))
-        self.assertTrue(profiles)
-        for profile in profiles:
-            self.assertIn(f"versions/{profile.name}", cmake)
+        active_profiles = (
+            "stellaris_4_5_2.cpp",
+            "stellaris_4_5_2_windows.cpp",
+        )
+        historical_profiles = (
+            "stellaris_4_4_6.cpp",
+            "stellaris_4_4_6_windows.cpp",
+        )
+        for profile in active_profiles:
+            self.assertIn(f"versions/{profile}", cmake)
+        for profile in historical_profiles:
+            self.assertNotIn(f"versions/{profile}", cmake)
+
+        verifier = RUNTIME_ROOT / "tools" / "version_profile" / "verify_binary.py"
+        self.assertTrue(verifier.is_file())
+        for platform in ("linux", "windows"):
+            manifest_path = (
+                RUNTIME_ROOT
+                / "versions"
+                / "manifests"
+                / f"stellaris_4_5_2_{platform}.json"
+            )
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(manifest["schema_version"], 1)
+            self.assertFalse(manifest["legacy_capture_templates_enabled"])
+            self.assertTrue(manifest["anchors"])
+
+        injector = (
+            RUNTIME_ROOT / "tools" / "inject_runtime.py"
+        ).read_text(encoding="utf-8")
+        self.assertIn("verify_exact_binary", injector)
+        self.assertIn("stellaris_4_5_2_linux.json", injector)
+        self.assertNotIn("c6969e60fd81d738948222a94c0b5a0841abbffc", injector)
 
     def test_windows_builder_discovers_actions_and_packages_runtime(self) -> None:
         builder = (

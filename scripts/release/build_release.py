@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and verify the five public v0.5.10 release attachments."""
+"""Legacy installer packaging; not used for the OGAS source-only alpha tag."""
 
 from __future__ import annotations
 
@@ -734,7 +734,7 @@ def package_source(stage: Path, commit: str, files: list[Path]) -> list[str]:
         remove_health_artifacts(stage)
     finalize_stage(
         stage,
-        package="Imperial Auto Governor source",
+        package="OGAS source",
         platform="source",
         commit=commit,
         health_checks=checks,
@@ -880,7 +880,7 @@ def build_release(skip_build: bool = False) -> Path:
 
     host_dist, agent_dist = build_windows_binaries(skip_build)
     names = {
-        "source": f"ImperialAutoGovernor-{version}",
+        "source": f"OGAS-{version}",
         "windows-agent": f"IAGWindowsAgent-{version}-windows-x64",
         "windows-host": f"IAGHostBridge-{version}-windows-x64",
         "ubuntu-agent": f"IAGUbuntuAgent-{version}",

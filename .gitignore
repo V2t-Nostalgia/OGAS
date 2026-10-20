@@ -29,6 +29,15 @@ venv/
 /saves/
 /databases/
 /artifacts/
+/.runtime-evidence/
+/.publication/
+/.runtime-analysis/
+
+# Optional prototype art: redistribution rights are not cleared.
+/services/stellaris_native_runtime/research/ui_bridge/assets/assistant_portrait_source.png
+/services/stellaris_native_runtime/research/ui_bridge/assets/thought_bubble_source.png
+/services/stellaris_native_runtime/research/ui_bridge/gfx/interface/iag/assistant_portrait.dds
+/services/stellaris_native_runtime/research/ui_bridge/gfx/interface/iag/thought_bubble.dds
 *.sav
 *.pcap
 *.pcapng

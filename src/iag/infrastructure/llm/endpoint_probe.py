@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any, Callable, Literal
 
+from iag import __version__
 from iag.infrastructure.llm.model_pool import ModelEndpoint
 from iag.infrastructure.llm.providers import api_headers, api_url
 
@@ -158,7 +159,7 @@ def probe_endpoint(
         )
     headers.pop("Content-Type", None)
     headers.setdefault("Accept", "application/json")
-    headers.setdefault("User-Agent", "ImperialAutoGovernor/0.6")
+    headers.setdefault("User-Agent", f"OGAS/{__version__}")
     request = urllib.request.Request(
         probe_url,
         headers=headers,

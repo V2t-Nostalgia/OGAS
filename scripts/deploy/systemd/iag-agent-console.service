@@ -1,5 +1,5 @@
 [Unit]
-Description=Imperial Auto Governor web console
+Description=OGAS web console
 Documentation=file:@PROJECT_ROOT@/README.md
 Wants=network-online.target
 After=network-online.target display-manager.service

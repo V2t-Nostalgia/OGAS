@@ -73,7 +73,7 @@ def _run_id() -> str:
 
 def _platform_version() -> str:
     try:
-        return importlib.metadata.version("imperial-auto-governor")
+        return importlib.metadata.version("ogas")
     except importlib.metadata.PackageNotFoundError:
         return "development"
 

@@ -1,5 +1,15 @@
 # Adding a Native Runtime Action
 
+> Publication: original/local evidence paths below are provenance labels, not Git downloads. Use the [indexed archive and access status](../research/EVIDENCE_ARCHIVE.md); public copies may be privacy-redacted and originals remain retained.
+
+
+For OGAS `v0.6.0-alpha.1`, start with the [contribution guide](../../CONTRIBUTING.md),
+[development guide](../DEVELOPMENT.md) and [evidence archive](../research/EVIDENCE_ARCHIVE.md).
+The active 4.5.2 profiles do not inherit 4.4.6 execution admission. Recovered SDK
+metadata and successful research `IsValid` calls are not production Action evidence.
+Reuse the shared NativeCommandBuilder/generated metadata where available; do
+not duplicate discovered layouts between research and production.
+
 This document is the contribution boundary for a verified Stellaris native
 action. An action PR extends the existing runtime; it does not install a second
 hook or create an Application-specific native API.
@@ -39,9 +49,14 @@ active side-effect slot, local-country authority, timeouts and the only call to
    must match the runtime parameters. If it is new, the Broker creates a strict
    staging target from the manifest under `etc`; promote it to a reviewed
    `SemanticTarget` before a permanent Application depends on it.
-5. Add parser/contract tests, Broker tests and a live evidence document.
-6. Only return true from the platform support probe after live verification.
-   Unsupported actions stay compiled but are absent from `describe_tools`.
+5. Add parser/contract tests, Broker tests and an evidence document. Label static,
+   mock, native-legality, paired-capture and actual-execution evidence separately;
+   without current-build execution evidence, do not claim a live action.
+6. A platform support probe may expose a statically recovered action as
+   `build_validation_pending` for a controlled exact-build validation batch.
+   The Native Runtime backend still refuses it. Only current-build
+   `live_verified` actions are production-executable; structurally unsupported
+   actions stay compiled but remain absent from `describe_tools`.
 
 An action PR normally does **not** edit the hook/trampoline, socket lifecycle,
 idempotency implementation, Python runtime client, Broker dispatch, or another
@@ -59,7 +74,7 @@ grant. It tells the Broker exactly what this binary can translate:
   "action_version": 1,
   "application_id": "etc",
   "risk_class": "state_change",
-  "verification_state": "live_verified",
+  "verification_state": "build_validation_pending",
   "parameters": [
     {"name": "object_id", "type": "uint32", "required": true,
      "minimum": 0, "maximum": 4294967295}
@@ -70,6 +85,12 @@ grant. It tells the Broker exactly what this binary can translate:
 The Broker still checks the semantic registry, Application grant, candidate,
 snapshot and player authority. Applications never consume this private
 manifest or construct positional native fields themselves.
+
+During an exact-build migration, a profile-level gate changes otherwise
+`live_verified` descriptors to `build_validation_pending`. This leaves them
+visible for a controlled validation batch without making the Native Runtime a
+Broker-eligible production backend. An action descriptor's older-version
+evidence must never bypass this gate.
 
 ## Action handler contract
 
@@ -91,6 +112,19 @@ postcondition can be observed before timeout, the action remains pending and
 must later be confirmed from a save.
 
 ## Example: building construction
+
+Recovered primitive/reference layouts can use the shared
+`NativeCommandBuilder` from `command_builder.h` and `ActiveRecoveredSdk()`.
+This is the same builder used by the bounded new-Command research probe.
+Create by native command name, set typed semantic fields, call `IsValid`, then
+return `PrepareResult::Ready(builder->ReleaseForSubmission())`. The builder
+keeps ownership until that transfer and will not release an invalid object.
+Missing/ambiguous fields and unresolved factories require further evidence;
+the generator does not grant an Action or change its verification level.
+Existing verified typed Actions do not need to be rewritten just to adopt it.
+
+See [`SDK_RECOVERY_4_5_2.md`](SDK_RECOVERY_4_5_2.md) for the generated SDK and
+the separate recruit-only Leader command used to verify this boundary.
 
 A building contribution should accept the already-defined semantic fields
 `colony_id`, `zone_id` and `building_id`. Its handler would resolve the colony
@@ -117,9 +151,9 @@ must not call the colony construction business method directly.
 Unknown or inferred commands remain under `research/` until all of these
 conditions are met.
 
-## Existing packet-grounded staging path
+## Historical packet-grounded staging path
 
-The 4.4.6 Linux profile also contains a generated staging adapter for command
+The historical 4.4.6 Linux profile contains a generated staging adapter for command
 families that already have paired packet fixtures. Do not hand-edit
 `actions/generated_capture_actions.inc`. Its source is
 `tools/generate_capture_actions.py`, which derives and validates every field
@@ -131,3 +165,6 @@ replace private captured queue/context fields with a semantic resolver, add a
 specific postcondition, attach live evidence, and only then enable the native
 backend for that reviewed Broker action. See
 [`CAPTURE_BACKED_NATIVE_ACTIONS_4_4_6.md`](CAPTURE_BACKED_NATIVE_ACTIONS_4_4_6.md).
+The active 4.5.2 profiles disable that serialized-command factory until
+current-build fixtures are collected and compared; do not copy old command
+bodies into the new profile.

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <span>
+#include <string_view>
 
 #include "iag_native_runtime/version_profile.h"
 
@@ -22,14 +23,18 @@ class GameApi {
   }
 
   [[nodiscard]] bool VerifyRequiredAnchors() const noexcept;
+  [[nodiscard]] const void* CurrentGameState() const noexcept;
   [[nodiscard]] const void* LocalObservedCountry() const noexcept;
   [[nodiscard]] std::uint32_t CountryId(const void* country) const noexcept;
   [[nodiscard]] const void* ResolvePdxObject(
       const ObjectDatabaseProfile& database,
       std::uint32_t object_id) const noexcept;
+  [[nodiscard]] const void* ResolveStaticDefinition(
+      const StaticDefinitionDatabaseProfile& database,
+      std::string_view key) const noexcept;
   [[nodiscard]] void* CreateSerializedCommand(
       std::span<const unsigned char> command_body) const noexcept;
-  void SetCommandActor(void* command, std::uint32_t country_id) const noexcept;
+  void ResetCommandSerial(void* command) const noexcept;
   [[nodiscard]] bool IsCommandValid(void* command) const noexcept;
   void DestroyCommand(void* command) const noexcept;
   void PostCommand(void* command) const noexcept;

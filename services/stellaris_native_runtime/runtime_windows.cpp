@@ -22,6 +22,8 @@
 
 #include "iag_native_runtime/action.h"
 #include "iag_native_runtime/game_api.h"
+#include "iag_native_runtime/sdk_probe.h"
+#include "iag_native_runtime/state_query.h"
 #include "iag_native_runtime/version_profile.h"
 
 namespace iag::native_runtime {
@@ -32,12 +34,22 @@ using namespace std::chrono_literals;
 constexpr wchar_t kDefaultPipeName[] = L"\\\\.\\pipe\\iag-stellaris-native";
 constexpr char kProtocolVersion[] = "IAG1";
 constexpr char kDescribeToolsAction[] = "describe_tools";
+constexpr char kInspectOpenEventsAction[] = "inspect_open_events";
+constexpr char kInspectPendingDiplomaticActionsAction[] =
+    "inspect_pending_diplomatic_actions";
+constexpr char kValidateRecoveredCommandAction[] = "validate_recovered_command";
 constexpr auto kExecutionTimeout = 15s;
 constexpr auto kResponseTimeout = 20s;
 
 using GameIdlerIdleFn = void(__fastcall*)(void*, bool);
 
 enum class RequestPhase { kPending, kPosted, kDone };
+enum class RequestKind {
+  kAction,
+  kInspectOpenEvents,
+  kValidateRecoveredCommand,
+  kInspectPendingDiplomaticActions
+};
 
 struct RuntimeRequest {
   std::uint64_t generation = 0;
@@ -45,7 +57,14 @@ struct RuntimeRequest {
   std::string action_type;
   std::string target_echo;
   std::uint32_t country_id = 0;
+  std::optional<std::uint32_t> probe_leader_id;
+  std::uint32_t probe_candidate_index = 0;
+  bool probe_auto_country = false;
+  std::string probe_command_name;
+  bool probe_native_domain = false;
+  std::optional<RecoveredConstraintCandidate> probe_constraint_candidate;
   std::shared_ptr<ActionInvocation> invocation;
+  RequestKind kind = RequestKind::kAction;
   RequestPhase phase = RequestPhase::kPending;
   std::chrono::steady_clock::time_point deadline;
   RuntimeResult result;
@@ -69,7 +88,7 @@ std::mutex g_log_mutex;
 char g_runtime_status[256] = "not_initialized";
 thread_local bool g_inside_idle_hook = false;
 
-const BuildProfile& Profile() { return Stellaris446WindowsProfile(); }
+const BuildProfile& Profile() { return ActiveStellarisProfile(); }
 
 void Log(const char* format, ...) {
   std::lock_guard lock(g_log_mutex);
@@ -269,6 +288,10 @@ std::string SanitizeDetail(std::string detail) {
 }
 
 std::string RequestFingerprint(const RuntimeRequest& request) {
+  if (request.kind != RequestKind::kAction &&
+      request.kind != RequestKind::kValidateRecoveredCommand) {
+    return request.action_type + '\t' + std::to_string(request.country_id);
+  }
   return request.action_type + '\t' + std::to_string(request.country_id) + '\t' +
          request.target_echo;
 }
@@ -312,7 +335,22 @@ void FinishRequest(
   g_request_changed.notify_all();
 }
 
-void ProcessPendingBeforeUpdate() {
+void FinishStateQuery(
+    std::uint64_t generation,
+    StateQueryResult result) {
+  std::lock_guard lock(g_request_mutex);
+  if (!g_active_request.has_value() ||
+      g_active_request->generation != generation) {
+    return;
+  }
+  g_active_request->target_echo = std::move(result.payload);
+  g_active_request->result = {
+      std::move(result.outcome), std::move(result.detail)};
+  g_active_request->phase = RequestPhase::kDone;
+  g_request_changed.notify_all();
+}
+
+void ProcessPendingBeforeUpdate(bool run_game_update) {
   RuntimeRequest request;
   {
     std::lock_guard lock(g_request_mutex);
@@ -321,6 +359,31 @@ void ProcessPendingBeforeUpdate() {
       return;
     }
     request = *g_active_request;
+  }
+  if (!ShouldDispatchPending(
+          run_game_update, request.kind == RequestKind::kValidateRecoveredCommand)) {
+    return;
+  }
+  if (request.kind == RequestKind::kInspectOpenEvents) {
+    FinishStateQuery(
+        request.generation,
+        InspectOpenEvents(*g_game, request.country_id));
+    return;
+  }
+  if (request.kind == RequestKind::kInspectPendingDiplomaticActions) {
+    FinishStateQuery(
+        request.generation,
+        InspectPendingDiplomaticActions(*g_game, request.country_id));
+    return;
+  }
+  if (request.kind == RequestKind::kValidateRecoveredCommand) {
+    const RecoveredProbeOptions options{
+        request.probe_auto_country ? std::nullopt : std::optional{request.country_id},
+        request.probe_leader_id, request.probe_candidate_index, run_game_update, request.probe_native_domain,
+        request.probe_constraint_candidate ? &*request.probe_constraint_candidate : nullptr};
+    FinishStateQuery(request.generation, ProbeRecoveredCommand(
+        *g_game, ActiveRecoveredSdk(), request.probe_command_name, options));
+    return;
   }
   PrepareResult prepared =
       request.invocation->Prepare(*g_game, request.country_id, nullptr);
@@ -389,9 +452,7 @@ void __fastcall GameIdlerIdleHook(void* idler, bool run_game_update) {
     return;
   }
   g_inside_idle_hook = true;
-  if (run_game_update) {
-    ProcessPendingBeforeUpdate();
-  }
+  ProcessPendingBeforeUpdate(run_game_update);
   g_original_game_idler_idle(idler, run_game_update);
   if (run_game_update) {
     VerifyPostedAfterUpdate();
@@ -408,44 +469,114 @@ std::string HandleRequest(std::string_view line) {
                : ImmediateResponse(
                      fields[1], fields[2], "rejected", "invalid_request_id");
   }
-  if (fields.size() < 5U || fields[0] != kProtocolVersion) {
+  if (fields.size() == 4U && fields[0] == kProtocolVersion &&
+      fields[2] == "describe_recovered_commands" && fields[3] == "0") {
+    if (!IsSemanticToken(fields[1], 96U)) {
+      return ImmediateResponse(fields[1], fields[2], "rejected", "invalid_request_id");
+    }
+    return std::string(kProtocolVersion) + '\t' + fields[1] + '\t' + fields[2] +
+        "\tconfirmed\t" + Profile().build_id + "\t0\t" +
+        DescribeRecoveredCommands(ActiveRecoveredSdk(), ::GetCurrentProcessId(),
+            reinterpret_cast<std::uintptr_t>(&g_active_request), g_game.get()) +
+        "\trecovered_command_catalog\n";
+  }
+  const bool inspect_open_events =
+      fields.size() == 4U && fields[0] == kProtocolVersion &&
+      fields[2] == kInspectOpenEventsAction;
+  const bool inspect_pending_diplomatic_actions =
+      fields.size() == 4U && fields[0] == kProtocolVersion &&
+      fields[2] == kInspectPendingDiplomaticActionsAction;
+  const bool state_query =
+      inspect_open_events || inspect_pending_diplomatic_actions;
+  const bool validate_recovered_command =
+      (fields.size() == 6U || fields.size() == 7U || fields.size() == 8U || fields.size() == 14U) && fields[0] == kProtocolVersion &&
+      fields[2] == kValidateRecoveredCommandAction;
+  // Targetless semantic actions still carry the protocol, request, action,
+  // and authority fields. Their descriptor receives an empty target span.
+  if ((!state_query && fields.size() < 4U) ||
+      fields[0] != kProtocolVersion) {
     return ImmediateResponse("invalid", "unknown", "rejected", "bad_request");
   }
   const std::string& request_id = fields[1];
   const std::string& action_type = fields[2];
-  const auto country_id = ParseUint32(fields[3]);
+  const bool auto_country = validate_recovered_command &&
+      (fields[3] == "auto" || fields[3] == "4294967295");
+  const auto country_id = auto_country ? std::optional<std::uint32_t>{UINT32_MAX}
+                                       : ParseUint32(fields[3]);
   if (!IsSemanticToken(request_id, 96U) || !country_id.has_value()) {
     return ImmediateResponse(
         request_id, action_type, "rejected", "invalid_semantic_target");
   }
-  const ActionDescriptor* descriptor = FindActionDescriptor(action_type);
-  if (descriptor == nullptr || !descriptor->supported(Profile())) {
-    return ImmediateResponse(
-        request_id, action_type, "rejected", "unsupported_action");
-  }
-  std::string parse_error;
-  const auto target_fields = std::span<const std::string>(fields).subspan(4U);
-  std::unique_ptr<ActionInvocation> parsed =
-      descriptor->parse(target_fields, parse_error);
-  if (parsed == nullptr) {
-    return ImmediateResponse(
-        request_id,
-        action_type,
-        "rejected",
-        parse_error.empty() ? "invalid_semantic_target" : parse_error);
-  }
-  const std::string target_echo = parsed->TargetEcho();
-  if (parsed->action_type() != descriptor->action_type ||
-      !IsSemanticToken(target_echo, 160U)) {
-    return ImmediateResponse(
-        request_id, action_type, "failed", "action_handler_contract_violation");
-  }
   RuntimeRequest parsed_request;
   parsed_request.request_id = request_id;
   parsed_request.action_type = action_type;
-  parsed_request.target_echo = target_echo;
   parsed_request.country_id = *country_id;
-  parsed_request.invocation = std::shared_ptr<ActionInvocation>(std::move(parsed));
+  if (validate_recovered_command) {
+    const auto leader_id = fields[5] == "auto" ? std::optional<std::uint32_t>{}
+                                              : ParseUint32(fields[5]);
+    const auto candidate_index = fields.size() >= 7U ? ParseUint32(fields[6])
+                                                     : std::optional<std::uint32_t>{0U};
+    const bool constraint_plan = fields.size() == 14U && fields[7] == "constraint_plan";
+    const auto constraint = constraint_plan
+        ? ParseRecoveredConstraintCandidate(std::span<const std::string>(fields).subspan(8U))
+        : std::optional<RecoveredConstraintCandidate>{};
+    if ((fields[5] != "auto" && !leader_id) ||
+        !candidate_index || *candidate_index >= 16U || !IsSemanticToken(fields[4], 96U) ||
+        (fields.size() == 8U && fields[7] != "native_domain") ||
+        (fields.size() == 8U && fields[5] != "auto") ||
+        (fields.size() == 14U && (!constraint || fields[5] != "auto" ||
+         constraint->expected_instance != reinterpret_cast<std::uintptr_t>(&g_active_request)))) {
+      return ImmediateResponse(request_id, action_type, "rejected", "invalid_probe_selector");
+    }
+    parsed_request.kind = RequestKind::kValidateRecoveredCommand;
+    parsed_request.probe_leader_id = leader_id;
+    parsed_request.probe_auto_country = auto_country;
+    parsed_request.probe_candidate_index = *candidate_index;
+    parsed_request.probe_command_name = fields[4];
+    parsed_request.probe_native_domain = fields.size() == 8U;
+    parsed_request.probe_constraint_candidate = constraint;
+    parsed_request.target_echo = fields[4] + ":" + fields[5] + ":" +
+                                 std::to_string(*candidate_index);
+    if (parsed_request.probe_native_domain) parsed_request.target_echo += ":native_domain";
+    if (constraint) {
+      for (std::size_t i = 7U; i < fields.size(); ++i) parsed_request.target_echo += ":" + fields[i];
+    }
+  } else if (inspect_open_events) {
+    parsed_request.kind = RequestKind::kInspectOpenEvents;
+    parsed_request.target_echo = "open-events";
+  } else if (inspect_pending_diplomatic_actions) {
+    parsed_request.kind = RequestKind::kInspectPendingDiplomaticActions;
+    parsed_request.target_echo = "pending-diplomatic-actions";
+  } else {
+    const ActionDescriptor* descriptor = FindActionDescriptor(action_type);
+    if (descriptor == nullptr || !descriptor->supported(Profile())) {
+      return ImmediateResponse(
+          request_id, action_type, "rejected", "unsupported_action");
+    }
+    std::string parse_error;
+    const auto target_fields = std::span<const std::string>(fields).subspan(4U);
+    std::unique_ptr<ActionInvocation> parsed =
+        descriptor->parse(target_fields, parse_error);
+    if (parsed == nullptr) {
+      return ImmediateResponse(
+          request_id,
+          action_type,
+          "rejected",
+          parse_error.empty() ? "invalid_semantic_target" : parse_error);
+    }
+    const std::string target_echo = parsed->TargetEcho();
+    if (parsed->action_type() != descriptor->action_type ||
+        !IsSemanticToken(target_echo, 160U)) {
+      return ImmediateResponse(
+          request_id,
+          action_type,
+          "failed",
+          "action_handler_contract_violation");
+    }
+    parsed_request.target_echo = target_echo;
+    parsed_request.invocation =
+        std::shared_ptr<ActionInvocation>(std::move(parsed));
+  }
   const std::string fingerprint = RequestFingerprint(parsed_request);
 
   std::unique_lock lock(g_request_mutex);

@@ -1,0 +1,4 @@
+capstone>=5.0,<6
+pefile>=2024.8.26
+pyelftools>=0.31,<1
+itanium-demangler==1.1

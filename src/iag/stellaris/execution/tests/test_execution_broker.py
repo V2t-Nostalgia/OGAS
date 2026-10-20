@@ -12,6 +12,7 @@ from iag.stellaris.execution.action_registry import (
     BackendId,
     MoveFleetTarget,
     ResearchTarget,
+    VerificationState,
     builtin_action_registry,
 )
 from iag.stellaris.execution.broker import (
@@ -564,6 +565,14 @@ class ExecutionBrokerTests(unittest.TestCase):
                                     "required": True,
                                     "description": "Desired state.",
                                 },
+                                {
+                                    "name": "sequence_id",
+                                    "type": "uint64",
+                                    "required": True,
+                                    "description": "Full-width sequence id.",
+                                    "minimum": 1,
+                                    "maximum": 0xFFFFFFFFFFFFFFFF,
+                                },
                             ],
                         }
                     ],
@@ -573,16 +582,433 @@ class ExecutionBrokerTests(unittest.TestCase):
 
         registry = _native_registry_overlay(builtin_action_registry(), manifest)
         spec = registry.get("experimental_toggle")
-        target = spec.validate_target({"object_id": 42, "enabled": True})
+        target = spec.validate_target(
+            {
+                "object_id": 42,
+                "enabled": True,
+                "sequence_id": 0xFFFFFFFFFFFFFFFF,
+            }
+        )
 
         self.assertEqual(spec.risk_class, ActionRisk.STATE_CHANGE)
         self.assertEqual(
             spec.broker_enabled_backends,
             (BackendId.NATIVE_RUNTIME,),
         )
-        self.assertEqual(target.model_dump(mode="json"), {"object_id": 42, "enabled": True})
+        self.assertEqual(
+            target.model_dump(mode="json"),
+            {
+                "object_id": 42,
+                "enabled": True,
+                "sequence_id": 0xFFFFFFFFFFFFFFFF,
+            },
+        )
         with self.assertRaises(ValueError):
-            spec.validate_target({"object_id": -1, "enabled": True})
+            spec.validate_target(
+                {"object_id": -1, "enabled": True, "sequence_id": 1}
+            )
+        with self.assertRaises(ValueError):
+            spec.validate_target(
+                {
+                    "object_id": 42,
+                    "enabled": True,
+                    "sequence_id": 0x10000000000000000,
+                }
+            )
+
+    def test_paired_capture_runtime_tool_is_visible_but_not_enabled(self) -> None:
+        manifest = NativeRuntimeManifest.model_validate_json(
+            json.dumps(
+                {
+                    "schema_version": "iag.native_tool_manifest.v1",
+                    "platform": "linux-x86_64",
+                    "game_version": "Stellaris 4.4.6",
+                    "build_id": NATIVE_RUNTIME_BUILD_ID,
+                    "tools": [
+                        {
+                            "action_type": "activate_tradition",
+                            "action_version": 1,
+                            "application_id": "etc",
+                            "description": "Adopt one legal tradition.",
+                            "risk_class": "irreversible_state_change",
+                            "verification_state": "paired_capture",
+                            "parameters": [
+                                {
+                                    "name": "definition_key",
+                                    "type": "string",
+                                    "required": True,
+                                    "description": "Current legal tradition key.",
+                                    "maximum_length": 160,
+                                }
+                            ],
+                        }
+                    ],
+                }
+            )
+        )
+
+        registry = _native_registry_overlay(builtin_action_registry(), manifest)
+        spec = registry.get("activate_tradition")
+
+        self.assertEqual(spec.supported_backends, (BackendId.NATIVE_RUNTIME,))
+        self.assertEqual(spec.broker_enabled_backends, ())
+        self.assertEqual(
+            spec.risk_class,
+            ActionRisk.IRREVERSIBLE_STATE_CHANGE,
+        )
+        self.assertEqual(
+            spec.validate_target({"definition_key": "tr_discovery_adopt"}).model_dump(
+                mode="json"
+            ),
+            {"definition_key": "tr_discovery_adopt"},
+        )
+
+    def test_current_build_pending_native_backend_is_not_enabled(self) -> None:
+        manifest = NativeRuntimeManifest.model_validate_json(
+            json.dumps(
+                {
+                    "schema_version": "iag.native_tool_manifest.v1",
+                    "platform": "linux-x86_64",
+                    "game_version": "Stellaris 4.5.2",
+                    "build_id": NATIVE_RUNTIME_BUILD_ID,
+                    "tools": [
+                        {
+                            "action_type": "move_fleet",
+                            "action_version": 1,
+                            "application_id": "fleet_operations",
+                            "description": "Move one fleet.",
+                            "risk_class": "state_change",
+                            "verification_state": "build_validation_pending",
+                            "parameters": [
+                                {
+                                    "name": "fleet_id",
+                                    "type": "uint32",
+                                    "required": True,
+                                    "description": "Fleet id.",
+                                    "minimum": 0,
+                                    "maximum": 0xFFFFFFFF,
+                                },
+                                {
+                                    "name": "destination_system_id",
+                                    "type": "uint32",
+                                    "required": True,
+                                    "description": "System id.",
+                                    "minimum": 0,
+                                    "maximum": 0xFFFFFFFF,
+                                },
+                            ],
+                        }
+                    ],
+                }
+            )
+        )
+
+        registry = _native_registry_overlay(builtin_action_registry(), manifest)
+        spec = registry.get("move_fleet")
+
+        self.assertEqual(
+            spec.broker_enabled_backends,
+            (BackendId.SESSION_PROXY,),
+        )
+        self.assertEqual(
+            spec.verification_for(BackendId.NATIVE_RUNTIME),
+            VerificationState.BUILD_VALIDATION_PENDING,
+        )
+        self.assertEqual(spec.verification_state, VerificationState.LIVE_VERIFIED)
+
+        client = FakeNativeClient()
+        client._manifest = manifest
+        backend = NativeRuntimeBackend(
+            {"native_runtime_enabled": True},
+            client_factory=lambda *_args, **_kwargs: client,
+        )
+        self.assertFalse(
+            backend.supports(builtin_action_registry().get("move_fleet"))
+        )
+
+    def test_live_verified_market_actions_are_native_enabled(self) -> None:
+        registry = builtin_action_registry()
+
+        for action_type in ("market_buy_resource", "market_sell_resource"):
+            spec = registry.get(action_type)
+            self.assertEqual(
+                spec.verification_state,
+                VerificationState.LIVE_VERIFIED,
+            )
+            self.assertEqual(
+                spec.supported_backends,
+                (BackendId.NATIVE_RUNTIME,),
+            )
+            self.assertEqual(
+                spec.broker_enabled_backends,
+                (BackendId.NATIVE_RUNTIME,),
+            )
+            self.assertEqual(
+                spec.validate_target(
+                    {"resource_key": "minerals", "lots": 1}
+                ).model_dump(mode="json"),
+                {"resource_key": "minerals", "lots": 1},
+            )
+
+    def test_live_verified_runtime_governance_action_is_native_enabled(self) -> None:
+        manifest = NativeRuntimeManifest.model_validate_json(
+            json.dumps(
+                {
+                    "schema_version": "iag.native_tool_manifest.v1",
+                    "platform": "linux-x86_64",
+                    "game_version": "Stellaris 4.4.6",
+                    "build_id": NATIVE_RUNTIME_BUILD_ID,
+                    "tools": [
+                        {
+                            "action_type": "activate_ascension_perk",
+                            "action_version": 1,
+                            "application_id": "etc",
+                            "description": "Select one legal ascension perk.",
+                            "risk_class": "irreversible_state_change",
+                            "verification_state": "live_verified",
+                            "parameters": [
+                                {
+                                    "name": "definition_key",
+                                    "type": "string",
+                                    "required": True,
+                                    "description": "Current legal perk key.",
+                                    "maximum_length": 160,
+                                }
+                            ],
+                        }
+                    ],
+                }
+            )
+        )
+
+        registry = _native_registry_overlay(builtin_action_registry(), manifest)
+        spec = registry.get("activate_ascension_perk")
+
+        self.assertEqual(spec.supported_backends, (BackendId.NATIVE_RUNTIME,))
+        self.assertEqual(
+            spec.broker_enabled_backends,
+            (BackendId.NATIVE_RUNTIME,),
+        )
+        self.assertEqual(
+            spec.verification_state,
+            VerificationState.LIVE_VERIFIED,
+        )
+        self.assertEqual(
+            spec.validate_target(
+                {"definition_key": "ap_archaeoengineers"}
+            ).model_dump(mode="json"),
+            {"definition_key": "ap_archaeoengineers"},
+        )
+
+    def test_live_verified_runtime_espionage_actions_are_native_enabled(self) -> None:
+        tools = []
+        for action_type, risk_class, parameters in (
+            (
+                "start_espionage_operation",
+                "state_change",
+                [
+                    {
+                        "name": "spy_network_id",
+                        "type": "uint32",
+                        "required": True,
+                        "description": "Owned spy-network id.",
+                        "minimum": 0,
+                        "maximum": 0xFFFFFFFF,
+                    },
+                    {
+                        "name": "operation_type_key",
+                        "type": "string",
+                        "required": True,
+                        "description": "Legal operation type.",
+                        "maximum_length": 160,
+                    },
+                ],
+            ),
+            (
+                "cancel_espionage_operation",
+                "destructive_state_change",
+                [
+                    {
+                        "name": "spy_network_id",
+                        "type": "uint32",
+                        "required": True,
+                        "description": "Owned spy-network id.",
+                        "minimum": 0,
+                        "maximum": 0xFFFFFFFF,
+                    },
+                    {
+                        "name": "operation_id",
+                        "type": "uint32",
+                        "required": True,
+                        "description": "Current operation id.",
+                        "minimum": 0,
+                        "maximum": 0xFFFFFFFF,
+                    },
+                ],
+            ),
+        ):
+            tools.append(
+                {
+                    "action_type": action_type,
+                    "action_version": 1,
+                    "application_id": "etc",
+                    "description": "Verified espionage action.",
+                    "risk_class": risk_class,
+                    "verification_state": "live_verified",
+                    "parameters": parameters,
+                }
+            )
+        manifest = NativeRuntimeManifest.model_validate_json(
+            json.dumps(
+                {
+                    "schema_version": "iag.native_tool_manifest.v1",
+                    "platform": "linux-x86_64",
+                    "game_version": "Stellaris 4.4.6",
+                    "build_id": NATIVE_RUNTIME_BUILD_ID,
+                    "tools": tools,
+                }
+            )
+        )
+
+        registry = _native_registry_overlay(builtin_action_registry(), manifest)
+        start = registry.get("start_espionage_operation")
+        cancel = registry.get("cancel_espionage_operation")
+
+        for spec in (start, cancel):
+            self.assertEqual(spec.verification_state, VerificationState.LIVE_VERIFIED)
+            self.assertEqual(
+                spec.broker_enabled_backends,
+                (BackendId.NATIVE_RUNTIME,),
+            )
+        self.assertEqual(
+            start.validate_target(
+                {
+                    "spy_network_id": 16778622,
+                    "operation_type_key": "operation_gather_information",
+                }
+            ).model_dump(mode="json"),
+            {
+                "spy_network_id": 16778622,
+                "operation_type_key": "operation_gather_information",
+            },
+        )
+        self.assertEqual(
+            cancel.validate_target(
+                {"spy_network_id": 16778622, "operation_id": 1845493761}
+            ).model_dump(mode="json"),
+            {"spy_network_id": 16778622, "operation_id": 1845493761},
+        )
+
+    def test_live_verified_runtime_situation_action_is_native_enabled(self) -> None:
+        manifest = NativeRuntimeManifest.model_validate_json(
+            json.dumps(
+                {
+                    "schema_version": "iag.native_tool_manifest.v1",
+                    "platform": "linux-x86_64",
+                    "game_version": "Stellaris 4.4.6",
+                    "build_id": NATIVE_RUNTIME_BUILD_ID,
+                    "tools": [
+                        {
+                            "action_type": "set_situation_approach",
+                            "action_version": 1,
+                            "application_id": "etc",
+                            "description": "Select a legal situation approach.",
+                            "risk_class": "state_change",
+                            "verification_state": "live_verified",
+                            "parameters": [
+                                {
+                                    "name": "situation_id",
+                                    "type": "uint32",
+                                    "required": True,
+                                    "description": "Owned situation id.",
+                                    "minimum": 0,
+                                    "maximum": 0xFFFFFFFF,
+                                },
+                                {
+                                    "name": "approach_key",
+                                    "type": "string",
+                                    "required": True,
+                                    "description": "Current legal approach key.",
+                                    "maximum_length": 160,
+                                },
+                            ],
+                        }
+                    ],
+                }
+            )
+        )
+
+        registry = _native_registry_overlay(builtin_action_registry(), manifest)
+        spec = registry.get("set_situation_approach")
+
+        self.assertEqual(spec.verification_state, VerificationState.LIVE_VERIFIED)
+        self.assertEqual(
+            spec.broker_enabled_backends,
+            (BackendId.NATIVE_RUNTIME,),
+        )
+        self.assertEqual(
+            spec.validate_target(
+                {
+                    "situation_id": 35,
+                    "approach_key": "situation_experimental_testing_physics",
+                }
+            ).model_dump(mode="json"),
+            {
+                "situation_id": 35,
+                "approach_key": "situation_experimental_testing_physics",
+            },
+        )
+
+    def test_live_verified_runtime_edict_actions_are_native_enabled(self) -> None:
+        tools = [
+            {
+                "action_type": action_type,
+                "action_version": 1,
+                "application_id": "etc",
+                "description": "Change one legal empire edict.",
+                "risk_class": "state_change",
+                "verification_state": "live_verified",
+                "parameters": [
+                    {
+                        "name": "definition_key",
+                        "type": "string",
+                        "required": True,
+                        "description": "Current legal edict key.",
+                        "maximum_length": 160,
+                    }
+                ],
+            }
+            for action_type in ("enable_edict", "disable_edict")
+        ]
+        manifest = NativeRuntimeManifest.model_validate_json(
+            json.dumps(
+                {
+                    "schema_version": "iag.native_tool_manifest.v1",
+                    "platform": "linux-x86_64",
+                    "game_version": "Stellaris 4.4.6",
+                    "build_id": NATIVE_RUNTIME_BUILD_ID,
+                    "tools": tools,
+                }
+            )
+        )
+
+        registry = _native_registry_overlay(builtin_action_registry(), manifest)
+        for action_type in ("enable_edict", "disable_edict"):
+            spec = registry.get(action_type)
+            self.assertEqual(
+                spec.verification_state,
+                VerificationState.LIVE_VERIFIED,
+            )
+            self.assertEqual(
+                spec.broker_enabled_backends,
+                (BackendId.NATIVE_RUNTIME,),
+            )
+            self.assertEqual(
+                spec.validate_target(
+                    {"definition_key": "fleet_supremacy"}
+                ).model_dump(mode="json"),
+                {"definition_key": "fleet_supremacy"},
+            )
 
     def test_runtime_cannot_reassign_reviewed_action_to_etc(self) -> None:
         manifest = NativeRuntimeManifest.model_validate_json(

@@ -1,5 +1,8 @@
 # Native Fleet Move Hook: Stellaris 4.4.6
 
+> Publication: original/local evidence paths below are provenance labels, not Git downloads. Use the [indexed archive and access status](../research/EVIDENCE_ARCHIVE.md); public copies may be privacy-redacted and originals remain retained.
+
+
 ## Scope and identity
 
 This document records the first live-verified native fleet action exposed by

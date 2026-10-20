@@ -1,1 +1,1 @@
-"""Transparent in-game conversation overlay for Imperial Auto Governor."""
+"""Transparent in-game conversation overlay for OGAS."""

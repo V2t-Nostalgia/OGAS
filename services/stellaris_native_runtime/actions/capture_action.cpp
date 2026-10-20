@@ -127,6 +127,7 @@ class CaptureActionInvocation final : public ActionInvocation {
       const GameApi& game,
       std::uint32_t country_id,
       const void*) override {
+    (void)country_id;
     auto body = Materialize();
     if (!body.has_value()) {
       return PrepareResult::Failed("capture_materialization_failed");
@@ -142,7 +143,7 @@ class CaptureActionInvocation final : public ActionInvocation {
     if (command == nullptr) {
       return PrepareResult::Failed("native_command_deserialization_failed");
     }
-    game.SetCommandActor(command, country_id);
+    game.ResetCommandSerial(command);
     if (!game.IsCommandValid(command)) {
       game.DestroyCommand(command);
       return PrepareResult::Rejected("native_command_invalid");
@@ -277,6 +278,13 @@ std::unique_ptr<ActionInvocation> ParseCaptureAction(
       if (!parsed.has_value() || *parsed < parameter.minimum ||
           *parsed > parameter.maximum) {
         error_detail = "capture_uint32_out_of_range";
+        return nullptr;
+      }
+    } else if (parameter.type == ActionParameterType::kUint64) {
+      const auto parsed = ParseUint64(value);
+      if (!parsed.has_value() || *parsed < parameter.minimum ||
+          *parsed > parameter.maximum) {
+        error_detail = "capture_uint64_out_of_range";
         return nullptr;
       }
     } else if (parameter.type == ActionParameterType::kBoolean) {

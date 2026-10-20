@@ -1,5 +1,8 @@
 # Observer-Mode AI Country Takeover: Stellaris 4.4.6
 
+> Publication: original/local evidence paths below are provenance labels, not Git downloads. Use the [indexed archive and access status](../research/EVIDENCE_ARCHIVE.md); public copies may be privacy-redacted and originals remain retained.
+
+
 ## Goal
 
 This note defines the intended single-process control model for AI-versus-AI

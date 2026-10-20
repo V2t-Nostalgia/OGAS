@@ -568,7 +568,7 @@ ProtocolResponse ExchangeWithAgent(
         {},
         {},
         {},
-        "Local IAG bridge could not create its IPC socket.",
+        "Local OGAS bridge could not create its IPC socket.",
     };
   }
 
@@ -588,7 +588,7 @@ ProtocolResponse ExchangeWithAgent(
         {},
         {},
         {},
-        "Configured IAG bridge socket path is too long.",
+        "Configured OGAS bridge socket path is too long.",
     };
   }
   std::memcpy(
@@ -605,7 +605,7 @@ ProtocolResponse ExchangeWithAgent(
         {},
         {},
         {},
-        "Local IAG service is offline; start echo_agent.py for this probe.",
+        "Local OGAS service is offline; start echo_agent.py for this probe.",
     };
   }
 
@@ -630,7 +630,7 @@ ProtocolResponse ExchangeWithAgent(
           {},
           {},
           {},
-          "Local IAG service disconnected while receiving the request.",
+          "Local OGAS service disconnected while receiving the request.",
       };
     }
     sent += static_cast<std::size_t>(count);
@@ -670,7 +670,7 @@ ProtocolResponse ExchangeWithAgent(
         {},
         {},
         {},
-        "Local IAG service returned an invalid IAGUI1 response.",
+        "Local OGAS service returned an invalid IAGUI1 response.",
     };
   }
   return ProtocolResponse{
@@ -693,10 +693,10 @@ std::string SubmitToAgent(
     return std::move(response.error);
   }
   if (response.operation != "conversation.response") {
-    return "Local IAG service returned an unexpected response type.";
+    return "Local OGAS service returned an unexpected response type.";
   }
   if (response.application_id != application_id) {
-    return "Local IAG service returned a response for a different "
+    return "Local OGAS service returned a response for a different "
            "Application.";
   }
   return std::move(response.message);
@@ -1237,7 +1237,7 @@ bool CreatePanel(void* gui) {
   g_contact_unread_markers = unread_markers;
   g_panel_visible = false;
   g_notification_visible = false;
-  ChangeText(title, "IAG // Strategic Communications");
+  ChangeText(title, "OGAS // Strategic Communications");
   EnsureWelcomeMessages();
   RenderActiveConversation();
   UpdateApplicationChrome();

@@ -1,5 +1,8 @@
 # Fleet Movement Native Map: Stellaris 4.4.6 Linux
 
+> Publication: original/local evidence paths below are provenance labels, not Git downloads. Use the [indexed archive and access status](../research/EVIDENCE_ARCHIVE.md); public copies may be privacy-redacted and originals remain retained.
+
+
 This document records the current fleet-movement evidence for Stellaris 4.4.6
 (`fdde`), Linux ELF Build ID
 `c6969e60fd81d738948222a94c0b5a0841abbffc`. Addresses are module-relative and
@@ -61,6 +64,11 @@ order but was not observed in the retained `human_ai` sample, so it is not a
 production alternative.
 
 ## Coordinate value
+
+Version warning (2026-10-20): do not transplant the legacy scale below to 4.5.2.
+Exact 4.5.2 ELF conversion evidence establishes a decimal scale of 100000, not
+32768. The old 4.4.6 numeric claim is retained as history pending an exact-build
+recheck, not as current SDK input. See [4.5.2 coordinate reuse](COORDINATE_VALUE_REUSE_4_5_2.md).
 
 `CCelestialCoordinate` is `0x28` bytes:
 

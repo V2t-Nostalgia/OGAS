@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OGAS // Observe</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">OGAS THIRD OBSERVE</p>
+      <h1>Stellaris 性能与 Mod 观测</h1>
+    </div>
+    <div class="live-state"><span id="live-dot" class="dot"></span><span id="live-label">等待状态</span></div>
+  </header>
+
+  <main>
+    <section id="stale-banner" class="banner hidden"></section>
+    <section class="summary-grid">
+      <article class="metric"><span>GameDate</span><strong id="game-date">未知</strong><small id="game-speed">等待两个存档日期</small></article>
+      <article class="metric"><span>Stellaris</span><strong id="game-process">未发现</strong><small id="game-memory">CPU / RAM 未知</small></article>
+      <article class="metric"><span>Observe 捕获</span><strong id="capture-total">0</strong><small id="capture-health">未连接</small></article>
+      <article class="metric"><span>Profiler</span><strong id="profiler-state">STOPPED</strong><small id="profiler-detail">尚未采样</small></article>
+    </section>
+
+    <section class="panel controls">
+      <div>
+        <h2>采样控制</h2>
+        <p>默认使用低开销用户态软件采样。控制按钮只管理外部 <code>perf</code>，不会向 Stellaris 注入命令。</p>
+      </div>
+      <div class="button-row">
+        <button data-action="start">开始</button>
+        <button data-action="pause">暂停</button>
+        <button data-action="resume">恢复</button>
+        <button data-action="stop" class="danger">安全停止</button>
+      </div>
+    </section>
+
+    <section class="two-column">
+      <article class="panel">
+        <div class="panel-head"><div><p class="eyebrow">PROCESS</p><h2>线程负载</h2></div><span id="thread-note" class="badge">/proc</span></div>
+        <div id="thread-list" class="thread-list empty">暂无进程数据</div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><div><p class="eyebrow">HISTORY</p><h2>推进与资源趋势</h2></div><span class="badge">真实墙钟</span></div>
+        <canvas id="history-chart" width="900" height="260"></canvas>
+        <div class="chart-legend"><span class="cpu">进程 CPU%</span><span class="speed">每游戏年秒数</span></div>
+      </article>
+    </section>
+
+    <section class="panel profile-panel">
+      <div class="panel-head wrap">
+        <div><p class="eyebrow">SAMPLED CALL STACKS</p><h2>CPU 热点与 Flame Graph</h2></div>
+        <div class="selectors">
+          <label>窗口<select id="window-select"></select></label>
+          <label>线程<select id="thread-select"><option value="all">全进程</option></select></label>
+          <label>排序<select id="sort-select"><option value="self">Self CPU</option><option value="inclusive">Inclusive CPU</option></select></label>
+        </div>
+      </div>
+      <div id="profile-unavailable" class="empty">尚无真实采样窗口。没有调用栈时不会生成伪 Flame Graph。</div>
+      <div id="profile-content" class="hidden">
+        <div class="hotspot-wrap">
+          <table>
+            <thead><tr><th>函数</th><th>模块</th><th>Self</th><th>Inclusive</th><th>估算 CPU 秒</th></tr></thead>
+            <tbody id="hotspot-body"></tbody>
+          </table>
+        </div>
+        <div class="flame-toolbar">
+          <span id="flame-path">all samples</span>
+          <button id="flame-reset" class="small">重置缩放</button>
+        </div>
+        <div id="flame-container" class="flame-container"><svg id="flame-svg"></svg><div id="flame-tip" class="tooltip hidden"></div></div>
+        <p class="note">矩形宽度来自真实采样栈。Sample count 不是函数实际调用次数；CPU 秒为采样频率推算值。</p>
+      </div>
+    </section>
+
+    <section class="panel compare-panel">
+      <div class="panel-head wrap">
+        <div><p class="eyebrow">WINDOW DIFF</p><h2>两个时段对比</h2></div>
+        <div class="selectors">
+          <label>基线<select id="baseline-select"></select></label>
+          <label>对比<select id="comparison-select"></select></label>
+          <button id="compare-button">生成差分 Flame Graph</button>
+        </div>
+      </div>
+      <div id="diff-container" class="flame-container compact"><svg id="diff-svg"></svg><div id="diff-tip" class="tooltip hidden"></div></div>
+    </section>
+
+    <section class="two-column">
+      <article class="panel">
+        <div class="panel-head"><div><p class="eyebrow">MOD EVIDENCE</p><h2>加载顺序与内容指纹</h2></div><button id="refresh-mods" class="small">重新扫描</button></div>
+        <div id="mod-summary" class="empty">正在读取 Mod 证据</div>
+        <div id="mod-list" class="mod-list"></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><div><p class="eyebrow">COMMAND CORRELATION</p><h2>相对原版基线变化</h2></div><span class="badge warning">相关不等于因果</span></div>
+        <div id="command-diff" class="empty">尚未配置原版 catalog 基线</div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">HOTSPOT HISTORY</p><h2>主要函数随窗口变化</h2></div><span class="badge">采样估算</span></div>
+      <canvas id="hotspot-chart" width="1600" height="300"></canvas>
+    </section>
+
+    <footer>原始 perf 数据、聚合结果和 Observe 原始日志分别保存并独立轮转。页面只读取有界聚合。</footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

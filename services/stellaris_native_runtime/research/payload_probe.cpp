@@ -20,6 +20,8 @@
 #include <typeinfo>
 #include <unistd.h>
 
+#include "rotating_probe_log.h"
+
 namespace {
 
 constexpr char kExpectedBuildId[] =
@@ -99,7 +101,7 @@ std::atomic<std::uint64_t> g_sequence{0};
 std::atomic<std::uint64_t> g_dropped{0};
 int g_event_read_fd = -1;
 int g_event_write_fd = -1;
-int g_log_fd = -1;
+iag::stellaris::research::RotatingProbeLog g_event_log;
 char g_probe_status[256] = "not_initialized";
 thread_local bool g_inside_payload_hook = false;
 
@@ -418,7 +420,8 @@ std::string TypeName(std::uintptr_t type_info_address) {
   return mangled;
 }
 
-std::string SerializeEvent(const PayloadEvent& event) {
+std::string SerializeEvent(
+    const PayloadEvent& event, std::uint64_t writer_dropped_before) {
   const char* kind = "persistent_const";
   if (event.kind == PayloadKind::kPersistentMutable) {
     kind = "persistent_mutable";
@@ -436,6 +439,8 @@ std::string SerializeEvent(const PayloadEvent& event) {
   output += ",\"realtime_ns\":" + std::to_string(event.realtime_ns);
   output += ",\"thread_id\":" + std::to_string(event.thread_id);
   output += ",\"dropped_before\":" + std::to_string(event.dropped_before);
+  output += ",\"writer_dropped_before\":" +
+            std::to_string(writer_dropped_before);
   output += ",\"label_or_type\":" + std::to_string(event.label_or_type);
   output += ",\"object\":\"" + Hex(event.object) + "\"";
   output += ",\"vtable_offset\":\"" + Hex(event.vtable - g_module_base) + "\"";
@@ -445,25 +450,18 @@ std::string SerializeEvent(const PayloadEvent& event) {
   return output;
 }
 
-void WriteAll(int fd, std::string_view value) {
-  while (!value.empty()) {
-    const ssize_t written = ::write(fd, value.data(), value.size());
-    if (written > 0) {
-      value.remove_prefix(static_cast<std::size_t>(written));
-    } else if (written < 0 && errno == EINTR) {
-      continue;
-    } else {
-      break;
-    }
-  }
-}
-
 void* WriterThread(void*) {
   PayloadEvent event;
+  std::uint64_t writer_dropped = 0;
   while (true) {
     const ssize_t received = ::read(g_event_read_fd, &event, sizeof(event));
     if (received == static_cast<ssize_t>(sizeof(event))) {
-      WriteAll(g_log_fd, SerializeEvent(event));
+      const std::string line = SerializeEvent(event, writer_dropped);
+      if (g_event_log.Write(line, event.monotonic_ns)) {
+        writer_dropped = 0;
+      } else {
+        ++writer_dropped;
+      }
     } else if (received < 0 && errno == EINTR) {
       continue;
     } else if (received == 0) {
@@ -478,11 +476,6 @@ bool OpenEventStream() {
   const char* path = configured != nullptr && configured[0] != '\0'
                          ? configured
                          : kDefaultLogPath;
-  g_log_fd = ::open(path, O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC, 0600);
-  if (g_log_fd < 0) {
-    std::snprintf(g_probe_status, sizeof(g_probe_status), "log_open_failed");
-    return false;
-  }
   int descriptors[2]{};
   if (::pipe2(descriptors, O_CLOEXEC) != 0) {
     std::snprintf(g_probe_status, sizeof(g_probe_status), "pipe_create_failed");
@@ -502,7 +495,22 @@ bool OpenEventStream() {
   header += ",\"build_id\":\"";
   header += kExpectedBuildId;
   header += "\"}\n";
-  WriteAll(g_log_fd, header);
+  if (!g_event_log.Open(
+          path,
+          std::move(header),
+          "IAG_PAYLOAD_PROBE_ROTATE_BYTES",
+          "IAG_PAYLOAD_PROBE_ROTATE_SECONDS",
+          "IAG_PROBE_MIN_FREE_BYTES",
+          128ULL * 1024ULL * 1024ULL,
+          15ULL * 60ULL,
+          5ULL * 1024ULL * 1024ULL * 1024ULL)) {
+    std::snprintf(
+        g_probe_status,
+        sizeof(g_probe_status),
+        "%s",
+        g_event_log.error());
+    return false;
+  }
   pthread_t thread{};
   if (::pthread_create(&thread, nullptr, &WriterThread, nullptr) != 0) {
     std::snprintf(g_probe_status, sizeof(g_probe_status), "writer_thread_failed");

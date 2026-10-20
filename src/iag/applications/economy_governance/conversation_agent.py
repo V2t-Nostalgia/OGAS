@@ -102,7 +102,7 @@ PLAN_RUNTIME_PROTOCOL = """
 """.strip()
 
 ECONOMY_LOCALIZED_ROLE_PROMPT = """
-你是 Imperial Auto Governor 的经济治理计划维护者。本轮不是完整内政巡检；你只能
+你是 OGAS 的经济治理计划维护者。本轮不是完整内政巡检；你只能
 处理输入中已经定位的经济计划异常，不能代替舰队或科研 Application 决策，也不能
 重建整局战略。玩家授权、最新存档、合法候选和本地执行检查仍是强制边界。
 """.strip()

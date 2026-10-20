@@ -8,8 +8,10 @@ namespace {
 using PostCommandFn = void (*)(void*, bool);
 using GetLocalObservedFn = const void* (*)(const void*);
 using CreateCommandFromBytesFn = void* (*)(const unsigned char*, unsigned int);
-using CommandMethodFn = bool (*)(void*);
+using CommandMethodFn = bool (*)(void*, void*);
 using CommandDestructorFn = void (*)(void*);
+using CStringDataFn = const char* (*)(const void*);
+using CStringSizeFn = int (*)(const void*);
 
 }  // namespace
 
@@ -59,8 +61,7 @@ const void* GameApi::LocalObservedCountry() const noexcept {
       profile_.core.get_local_observed == 0U) {
     return nullptr;
   }
-  const void* game_state = *reinterpret_cast<void* const*>(
-      Address(profile_.core.current_game_state));
+  const void* game_state = CurrentGameState();
   if (game_state == nullptr) {
     return nullptr;
   }
@@ -108,6 +109,61 @@ const void* GameApi::ResolvePdxObject(
   return resolved_id == object_id ? object : nullptr;
 }
 
+const void* GameApi::ResolveStaticDefinition(
+    const StaticDefinitionDatabaseProfile& database_profile,
+    std::string_view key) const noexcept {
+  if (key.empty() || database_profile.database_instance == 0U ||
+      database_profile.null_object_instance == 0U ||
+      profile_.c_string.get_tchar_ptr == 0U ||
+      profile_.c_string.get_size == 0U) {
+    return nullptr;
+  }
+  const void* null_object = *reinterpret_cast<void* const*>(
+      Address(database_profile.null_object_instance));
+  const auto* database = reinterpret_cast<const unsigned char*>(
+      *reinterpret_cast<void* const*>(Address(database_profile.database_instance)));
+  if (database == nullptr) {
+    return nullptr;
+  }
+  const auto* objects = *reinterpret_cast<void* const* const*>(
+      database + database_profile.objects_data_offset);
+  const std::int32_t count = *reinterpret_cast<const std::int32_t*>(
+      database + database_profile.objects_count_offset);
+  if (objects == nullptr || count < 0 || count > 1000000) {
+    return nullptr;
+  }
+  const auto get_data =
+      FunctionAt<CStringDataFn>(profile_.c_string.get_tchar_ptr);
+  const auto get_size = FunctionAt<CStringSizeFn>(profile_.c_string.get_size);
+  for (std::int32_t index = 0; index < count; ++index) {
+    const void* object = objects[index];
+    if (object == nullptr || object == null_object) {
+      continue;
+    }
+    const auto* object_key = static_cast<const unsigned char*>(object) +
+                             database_profile.object_key_offset;
+    const int object_key_size = get_size(object_key);
+    if (object_key_size < 0 ||
+        static_cast<std::size_t>(object_key_size) != key.size()) {
+      continue;
+    }
+    const char* object_key_data = get_data(object_key);
+    if (object_key_data != nullptr &&
+        std::memcmp(object_key_data, key.data(), key.size()) == 0) {
+      return object;
+    }
+  }
+  return nullptr;
+}
+
+const void* GameApi::CurrentGameState() const noexcept {
+  if (profile_.core.current_game_state == 0U) {
+    return nullptr;
+  }
+  return *reinterpret_cast<void* const*>(
+      Address(profile_.core.current_game_state));
+}
+
 void* GameApi::CreateSerializedCommand(
     std::span<const unsigned char> command_body) const noexcept {
   const auto& bindings = profile_.serialized_command;
@@ -120,15 +176,13 @@ void* GameApi::CreateSerializedCommand(
       command_body.data(), static_cast<unsigned int>(command_body.size()));
 }
 
-void GameApi::SetCommandActor(
-    void* command,
-    std::uint32_t country_id) const noexcept {
+void GameApi::ResetCommandSerial(void* command) const noexcept {
   if (command == nullptr) {
     return;
   }
   *reinterpret_cast<std::uint32_t*>(
       static_cast<unsigned char*>(command) +
-      profile_.serialized_command.command_actor_offset) = country_id;
+      profile_.serialized_command.command_serial_offset) = 0xffffffffU;
 }
 
 bool GameApi::IsCommandValid(void* command) const noexcept {
@@ -146,7 +200,8 @@ bool GameApi::IsCommandValid(void* command) const noexcept {
   if (!IsTextPointer(method)) {
     return false;
   }
-  return reinterpret_cast<CommandMethodFn>(const_cast<void*>(method))(command);
+  return reinterpret_cast<CommandMethodFn>(const_cast<void*>(method))(
+      command, nullptr);
 }
 
 void GameApi::DestroyCommand(void* command) const noexcept {

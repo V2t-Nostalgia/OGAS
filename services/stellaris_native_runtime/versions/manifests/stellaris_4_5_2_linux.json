@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "profile_id": "stellaris-4.5.2-linux-steam-25664273",
+  "platform": "linux-x86_64",
+  "game_version": "Stellaris 4.5.2 (3270)",
+  "binary": {
+    "sha256": "1c4c79a0ef8af7b984b797606373eb68b60fe421e4ef54c20e12e4a9398ba86b",
+    "size": 109292112,
+    "elf_build_id": "121ecb516cbc5f1d39917fbcc36620534384e2c2",
+    "image_size": "0x626f000"
+  },
+  "text": {
+    "rva": "0x1826a90",
+    "virtual_size": "0x2d918c2",
+    "raw_size": "0x2d918c2",
+    "sha256": "d86424ca360674f6f8899aa11014638e9fb460707a41d174c055b5583a21cd8e"
+  },
+  "legacy_capture_templates_enabled": false,
+  "anchors": [
+    {
+      "name": "CGameIdler::Idle",
+      "rva": "0x1afd770",
+      "prefix_hex": "554157415641554154534881eca8010000"
+    },
+    {
+      "name": "PostCommandToSession",
+      "rva": "0x1b02540",
+      "prefix_hex": "554157415641545389f54989ff4c8d25"
+    },
+    {
+      "name": "CCancelResearchTechnologyCommand::CCancelResearchTechnologyCommand",
+      "rva": "0x22a4330",
+      "prefix_hex": "b8ffffffff48894708c747100000ffff"
+    },
+    {
+      "name": "CTechnologyStatus::IsResearching",
+      "rva": "0x20abe60",
+      "prefix_hex": "8b575c85d27e2b4c8b4750498d401831"
+    },
+    {
+      "name": "CCountry::AccessTechnologyModule",
+      "rva": "0x23a8270",
+      "prefix_hex": "534889fb488bbf682a00004881c3682a"
+    },
+    {
+      "name": "CFleetFlyToCoordinatesCommand::CFleetFlyToCoordinatesCommand",
+      "rva": "0x22d5240",
+      "prefix_hex": "b8ffffffff48894708c747100000ffff"
+    },
+    {
+      "name": "CFleetFlyToCoordinatesCommand::IsValid",
+      "rva": "0x22d5570",
+      "prefix_hex": "55415741564155415453504989ff4c8d"
+    },
+    {
+      "name": "CGalacticObject::CalcFTLPointWith",
+      "rva": "0x260d110",
+      "prefix_hex": "415653504889f34989fe488b024889d7"
+    },
+    {
+      "name": "CFollowFleetCommand::CFollowFleetCommand",
+      "rva": "0x22e3810",
+      "prefix_hex": "448a542408b8ffffffff48894708c747"
+    },
+    {
+      "name": "CFollowFleetCommand::IsValid",
+      "rva": "0x22e3950",
+      "prefix_hex": "415653504889fbbf58000000e8bf2554"
+    },
+    {
+      "name": "CFleet::GetExecutingOrder",
+      "rva": "0x2930c70",
+      "prefix_hex": "488bbfc8020000e9340907000f1f4000"
+    },
+    {
+      "name": "CMarketBuyResourceCommand::CMarketBuyResourceCommand",
+      "rva": "0x43281c0",
+      "prefix_hex": "b8ffffffff48894708c747100000ffff"
+    },
+    {
+      "name": "CStrategicResourceDatabase::GetResource",
+      "rva": "0x2076700",
+      "prefix_hex": "5541574156415541545350448b7f1445"
+    },
+    {
+      "name": "CSelectEventOptionCommand::CSelectEventOptionCommand",
+      "rva": "0x255b8a0",
+      "prefix_hex": "415653504989d64889fbb8ffffffff48"
+    },
+    {
+      "name": "CGameState::GetOpenPlayerEvent",
+      "rva": "0x1b49110",
+      "prefix_hex": "48638f8c0100004885c97429488b9780"
+    },
+    {
+      "name": "CEventOption::GetFirstKey",
+      "rva": "0x2567120",
+      "prefix_hex": "534889fb4881c6b8040000e86011feff"
+    },
+    {
+      "name": "CDiploActionRespondCommand::CDiploActionRespondCommand",
+      "rva": "0x22c8100",
+      "prefix_hex": "b8ffffffff48894708c747100000ffff"
+    },
+    {
+      "name": "CCountry::CanRespondToDiploAction",
+      "rva": "0x2365c30",
+      "prefix_hex": "554157415641554154534883ec684885"
+    },
+    {
+      "name": "CCountry::HasAscensionPerk",
+      "rva": "0x23af390",
+      "prefix_hex": "554157415641554154534883ec184889"
+    },
+    {
+      "name": "CSpyNetwork::GetTarget",
+      "rva": "0x20174f0",
+      "prefix_hex": "488b0591b071034885c074278b4f1c89"
+    },
+    {
+      "name": "CScopeObjectReference::SetCountry",
+      "rva": "0x256bcc0",
+      "prefix_hex": "8b462048c74708040000008947100f57"
+    }
+  ]
+}

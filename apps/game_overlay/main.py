@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Entrypoint for the standalone Imperial Auto Governor game overlay."""
+"""Entrypoint for the standalone OGAS game overlay."""
 
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ def preview_configuration() -> OverlayConfiguration:
 def main() -> int:
     args = parse_args()
     application = QApplication(sys.argv[:1])
-    application.setApplicationName("Imperial Auto Governor Overlay")
+    application.setApplicationName("OGAS Overlay")
     try:
         if args.preview:
             configuration = preview_configuration()
@@ -65,7 +65,7 @@ def main() -> int:
         window.show()
         return int(application.exec())
     except Exception as error:  # noqa: BLE001 - GUI boundary must report startup failures.
-        QMessageBox.critical(None, "IAG Game Overlay", str(error))
+        QMessageBox.critical(None, "OGAS Game Overlay", str(error))
         return 1
 
 

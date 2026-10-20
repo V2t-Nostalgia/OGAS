@@ -1,41 +1,78 @@
 <!-- SPDX-FileCopyrightText: 2026 Imperial Auto Governor contributors -->
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 
-# 贡献指南
+# Contributing to OGAS
 
-## 许可证
+**English | [简体中文](CONTRIBUTING.zh-CN.md)**
 
-提交代码即表示你同意按 `GPL-3.0-only` 发布该代码；提交文档即表示你同意按 `CC-BY-SA-4.0` 发布该文档。第三方内容必须明确标注来源和兼容许可证，不能从其他模组复制源码。
+Start with the [overview](README.md) and [development guide](docs/DEVELOPMENT.md).
+These guidelines accompany `v0.6.0-alpha.1`.
+Code, bug reports, independent audits and reverse-engineering research are
+welcome. Negative results and corrections are valuable evidence.
 
-## DCO
+## Minimum Evidence
 
-本项目采用 Developer Certificate of Origin 1.1。每个提交必须包含与你提交身份一致的签署行：
+| Contribution | Include |
+| --- | --- |
+| Bug report | Exact code location/version, reproducible conditions, expected/actual behavior and minimal sanitized evidence |
+| Fix or improvement | Scope, rationale, regression tests, relevant build/test output and limitations |
+| Independent audit | Audited commit, concrete finding/impact, reproduction or a clearly labeled hypothesis; identify the evidence being challenged |
+| Reverse engineering | Exact game/platform/version, ELF Build ID or PE/file fingerprint, source artifacts, tool versions, reproduction and uncertainty |
+| Executable action/backend | Typed semantic target, authority/candidate checks, failure cases, native/transport evidence and action-specific confirmation |
+
+Use [issues](https://github.com/V2t-Nostalgia/OGAS/issues) for ordinary bugs and
+pull requests for scoped changes. Report vulnerabilities **privately** through
+the channel in [SECURITY](SECURITY.md), not in a public issue.
+
+## Architecture Boundaries
+
+- New Applications use semantic actions and the Execution Broker, never packet
+  modules, `SessionProxyController` or a Native Runtime client directly. Existing
+  migration allowlists are debt to reduce, not examples to copy.
+- A new backend implements the same contract. Do not add a second execution
+  queue, a parallel Runtime, or a Hook per action.
+- Domain candidate generation stays outside the Broker. Models must not invent
+  object IDs, wire targets, addresses or native layouts.
+- Static recovery, offline construction, native `IsValid`, observed commands,
+  execution postconditions and multiplayer synchronization are distinct claims.
+  `IsValid=true` or captured RTTI does not promote a production capability.
+- Preserve stale-save rejection, permissions, reservations, serialized effects,
+  confirmation, no-silent-replay behavior and save continuation. Ordered
+  sequences are not rollback transactions.
+
+See [Broker contracts](docs/EXECUTION_BROKER.md),
+[native action requirements](docs/runtime/NATIVE_RUNTIME_ACTION_CONTRIBUTING.md)
+and the [example](services/stellaris_native_runtime/examples/example_action.cpp.example).
+Native modules declare their Application and parameters; unclassified tools
+stage under `etc`, without an autonomous agent.
+
+## Verification and Data
+
+Run `python scripts/validation/run_tests.py --quiet`, the same entry point as
+CI. Add focused tests and relevant C++/platform checks for native changes.
+Report optional parser/cross-language tests as run or skipped. Live testing
+requires separate, explicit authorization for a disposable session.
+
+Never commit keys, personal data, private endpoints, configuration secrets,
+unreviewed saves/captures, executable artifacts or research output directories.
+Do not use `git add -A` to sweep a research worktree into a PR. Large reviewed
+evidence belongs in the [separate archive](docs/research/EVIDENCE_ARCHIVE.md),
+with SHA-256, path mapping, access status and source/version binding. Preserve
+failed, interrupted and superseded runs; redaction must not erase originals.
+
+## Licensing and DCO
+
+Original code is **GPL-3.0-only**; original documentation is **CC-BY-SA-4.0**.
+Keep [NOTICE](NOTICE), [origin](ORIGIN.md), SPDX information and third-party MIT
+notices. Do not copy mod/game resources without compatible rights.
+
+Every commit requires the [DCO 1.1](DCO) sign-off matching its author identity:
 
 ```text
-Signed-off-by: Your Name <EMAIL>
+Signed-off-by: Your Name <your-email>
 ```
 
-可使用 `git commit -s` 自动添加。完整条款见 [DCO](DCO)。使用化名贡献时，请先确认所用 Git 身份能够长期维持且仍满足 DCO；不要在 issue、日志或测试夹具中提交私人 IP、账户、存档或密钥。
-
-## 变更要求
-
-1. 建设动作必须来自规则引擎生成的合法候选。
-2. 未经包回传或新存档确认，不得将动作记录为成功。
-3. 新增协议字段必须附差分样本方法和可复现实验记录。
-4. 网络抓取结果一律视为不可信参考，不得直接生成对象 ID 或绕过本地安全边界。
-5. 运行 `python scripts/validation/run_tests.py --quiet`，并为行为变化补测试；这与 GitHub Actions 使用同一入口。
-6. 不提交 `state/`、`runs/`、`secrets/`、抓包、校准截图、存档或构建目录。
-7. Application 只能依赖 semantic action 与 Execution Broker；不得直接 import
-   `SessionProxyController`、`packet/` 或 native runtime client。现有 allowlist 只用于
-   逐步清理 v0.5.10 迁移债务。
-
-新增执行能力前请阅读 [`docs/EXECUTION_BROKER.md`](docs/EXECUTION_BROKER.md)。新增
-semantic action、backend 或 Application 时，应分别补 registry、backend contract 与
-architecture tests；transport fixture 不能充当公共 target schema。
-
-新增已验证的原生动作请从
-[`example_action.cpp.example`](services/stellaris_native_runtime/examples/example_action.cpp.example)
-开始。每个 action `.cpp` 必须自述所属 Application 与完整参数；尚未完成领域审查时使用
-`etc`。构建系统会自动发现文件并生成 runtime tool manifest，不要为它增加第二个 Hook、
-Python dispatch 分支或 Application 对 native runtime 的直接依赖。完整准入要求见
-[`NATIVE_RUNTIME_ACTION_CONTRIBUTING.md`](docs/runtime/NATIVE_RUNTIME_ACTION_CONTRIBUTING.md)。
+`git commit -s` adds the trailer. A cryptographic signature (`git commit -S`)
+is **different** and does not replace DCO. Maintainer publication commits and
+tags use the configured long-term key; contributors must not create temporary
+keys to imitate that identity. Existing contribution rules otherwise remain.

@@ -1,0 +1,45 @@
+{
+  "elapsed_seconds": 211.193,
+  "evidence_level": "layout_generated",
+  "execution_verified": false,
+  "linux_build_id": "121ecb516cbc5f1d39917fbcc36620534384e2c2",
+  "linux_commands": 351,
+  "linux_dwarf_sections": [
+    ".debug_aranges",
+    ".debug_info",
+    ".debug_abbrev",
+    ".debug_line",
+    ".debug_str",
+    ".debug_addr",
+    ".debug_line_str",
+    ".debug_loclists",
+    ".debug_rnglists",
+    ".debug_str_offsets"
+  ],
+  "linux_factories": 346,
+  "ogas_comparison": {
+    "checks": 18,
+    "errors": [],
+    "ok": true
+  },
+  "production_actions_added": 0,
+  "reference_comparison": {
+    "checks": 38,
+    "errors": [],
+    "ok": true,
+    "samples": [
+      "hire_leader",
+      "research_technology_command",
+      "cancel_research_technology_command",
+      "fleet_fly_to_coordinates",
+      "market_buy_resource_command",
+      "add_buildable_to_queue_command"
+    ]
+  },
+  "schema_version": "iag.sdk_recovery_report.v1",
+  "windows_build_id": "sha256:400df27c82ddc845aa9dce79bd468d81f18f060d299cd263e3afa93aef4f7a83",
+  "windows_commands": 366,
+  "windows_factories": 353,
+  "windows_functions": 104,
+  "windows_globals": 73
+}

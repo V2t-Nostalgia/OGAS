@@ -3,6 +3,9 @@
 
 # 项目起源
 
+当前项目名称为 OGAS，仓库为 `V2t-Nostalgia/OGAS`。以下 Imperial Auto Governor
+名称保留原始项目历史，不表示存在第二套 Runtime 或执行系统。
+
 Original concept, architecture, and first implementation by
 Nostalgia, 2026.
 

@@ -48,7 +48,7 @@ class DisplayTestWindow(OverlayWindow):
             preview=True,
             persist_settings=True,
         )
-        self.setWindowTitle("IAG Overlay Display Test")
+        self.setWindowTitle("OGAS Overlay Display Test")
         self.drag_handle.setText("GREY TEMPEST // DISPLAY TEST")
         self.command_input.setPlaceholderText("TRANSMIT LOCAL TEST MESSAGE...")
 

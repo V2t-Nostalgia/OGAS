@@ -1,4 +1,4 @@
-# 灰风显示层测试程序
+# OGAS 显示层测试程序
 
 `IAGOverlayDisplayTest.exe` 是完全本地运行的显示测试程序。
 

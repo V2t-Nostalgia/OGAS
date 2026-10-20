@@ -1,7 +1,7 @@
 version = 1
-SPDX-PackageName = "Imperial Auto Governor"
-SPDX-PackageSupplier = "Imperial Auto Governor contributors"
-SPDX-PackageDownloadLocation = "NOASSERTION"
+SPDX-PackageName = "OGAS"
+SPDX-PackageSupplier = "OGAS contributors"
+SPDX-PackageDownloadLocation = "https://github.com/V2t-Nostalgia/OGAS"
 
 [[annotations]]
 path = ["**/*.json", "**/*.yml", "**/*.yaml", "**/*.mod", "common/**", "events/**", "localisation/**"]
@@ -14,3 +14,9 @@ path = ["**/*.md", "NOTICE", "ORIGIN.md", "TRADEMARKS.md", "SECURITY.md", "CONTR
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Imperial Auto Governor contributors"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+[[annotations]]
+path = ["services/stellaris_native_runtime/tools/sdk_recovery/vendor/**"]
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Yidhar"
+SPDX-License-Identifier = "MIT"

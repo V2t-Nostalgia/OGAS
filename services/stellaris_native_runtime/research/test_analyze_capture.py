@@ -115,9 +115,52 @@ class CaptureAnalyzerTests(unittest.TestCase):
     def test_sums_dropped_event_counters(self) -> None:
         self.assertEqual(
             capture.dropped_event_count(
-                [{"dropped_before": 2}, {}, {"dropped_before": 3}]
+                [
+                    {"dropped_before": 2},
+                    {"writer_dropped_before": 4},
+                    {"dropped_before": 3, "writer_dropped_before": 1},
+                ]
             ),
-            5,
+            10,
+        )
+
+    def test_summarizes_event_content_situations_and_chains(self) -> None:
+        summary = capture.summarize_states(
+            [
+                {
+                    "kind": "event_executed",
+                    "event_or_type_key": "story.1",
+                    "option_index": 1,
+                    "content_included": True,
+                    "title_key": "story_title",
+                    "description_key": "story_desc",
+                    "options": [
+                        {"option_index": 0, "text_key": "story_no"},
+                        {"option_index": 1, "text_key": "story_yes"},
+                    ],
+                },
+                {
+                    "kind": "situation_approach_changed",
+                    "event_or_type_key": "situation_story",
+                    "approach_key": "approach_fast",
+                },
+                {
+                    "kind": "event_chain_started",
+                    "event_or_type_key": "chain_story",
+                },
+            ]
+        )
+
+        self.assertEqual(summary["kinds"]["event_executed"], 1)
+        self.assertEqual(
+            summary["event_content"]["story.1"]["option_keys"],
+            ["story_no", "story_yes"],
+        )
+        self.assertEqual(
+            summary["approaches"][("situation_story", "approach_fast")], 1
+        )
+        self.assertEqual(
+            summary["chains"][("event_chain_started", "chain_story")], 1
         )
 
 

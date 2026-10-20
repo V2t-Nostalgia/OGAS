@@ -111,18 +111,25 @@ class MoveFleetInvocation final : public ActionInvocation {
       const GameApi& game,
       std::uint32_t country_id,
       const void*) override {
+    const auto& bindings = game.profile().move_fleet;
     const void* fleet = game.ResolvePdxObject(
-        game.profile().move_fleet.fleets, fleet_id_);
+        bindings.fleets, fleet_id_);
     if (fleet == nullptr || !FleetOwnedByCountry(game, fleet, country_id)) {
       return std::nullopt;
+    }
+    if (bindings.fleet_count_orders == 0U &&
+        bindings.fleet_has_player_movement_order == 0U &&
+        bindings.fleet_executing_order_offset == 0U) {
+      return RuntimeResult{
+          "pending", "native_posted_awaiting_save_verification"};
     }
     const int order_count = FleetOrderCount(game, fleet);
     const bool has_player_movement_order =
         FleetHasPlayerMovementOrder(game, fleet);
     const std::uint32_t order_type = FleetExecutingOrderType(game, fleet);
-    if (game.profile().move_fleet.clone_command != 0U &&
-        initial_order_type_ != game.profile().move_fleet.move_order_type &&
-        order_type == game.profile().move_fleet.move_order_type) {
+    if (bindings.clone_command != 0U &&
+        initial_order_type_ != bindings.move_order_type &&
+        order_type == bindings.move_order_type) {
       return RuntimeResult{
           "confirmed", "native_postcondition_move_order_type_present"};
     }

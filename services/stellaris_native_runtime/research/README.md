@@ -22,14 +22,29 @@ fixed-size event into a nonblocking pipe; symbol resolution, demangling, and
 file I/O happen on a background writer thread.
 The exact-build `CTurnTickCommand` vtable is filtered before enqueueing because
 tick traffic carries no action semantics and otherwise dominates the capture.
+For long-running sessions the background writer rotates each stream at 128 MiB
+or 15 minutes. Closed segments receive a `.ready` suffix; the hot path never
+compresses them. Recording stops instead of consuming the filesystem's final
+5 GiB, and a later successful event reports the resulting
+`writer_dropped_before` count. These defaults can be adjusted with
+`IAG_COMMAND_PROBE_ROTATE_BYTES`, `IAG_COMMAND_PROBE_ROTATE_SECONDS`,
+`IAG_PAYLOAD_PROBE_ROTATE_BYTES`, `IAG_PAYLOAD_PROBE_ROTATE_SECONDS`, and
+`IAG_PROBE_MIN_FREE_BYTES`.
 
-Schema `iag.stellaris.command_probe.v2` additionally copies bounded layouts for
-the fleet command and nested `CFleetOrder` types that have been recovered for
-this exact executable. The record exposes `known_command_hex`,
-`known_nested_hex`, nested RTTI and bounded related fleet IDs. Unknown RTTI
-continues to expose only the common `CCommand` header. This is deliberately an
-exact-build research allowlist: the probe never guesses an object size or
-follows an unclassified payload pointer.
+Schema `iag.stellaris.command_probe.v3` additionally copies bounded layouts for
+exact-build types recovered statically. Besides fleet commands and nested
+`CFleetOrder` objects, the allowlist covers one-shot market commands, the
+scalar prefix of event-option selection, selected war/diplomacy wrappers, and
+the nested `CDeclareWarAction`. It also covers the statically recovered
+`CSetSituationApproachCommand` and `CExecuteEventAfterCommand` prefixes. The
+record exposes captured and full object
+sizes separately, `known_command_hex`, `known_nested_hex`, nested RTTI and
+bounded related fleet IDs. First-seen command and nested vtables carry an
+eight-method module-relative structural fingerprint. Unknown RTTI continues to
+expose only the common `CCommand` header. A nested diplomatic action may expose
+only its statically confirmed common 0x50-byte base prefix and is explicitly
+marked incomplete. The probe never guesses a derived object size or follows an
+unclassified payload pointer.
 
 `payload_probe.cpp` is a companion observer for polymorphic payloads hidden by
 generic command wrappers. It records nested `CFleetOrder` objects written by
@@ -38,6 +53,15 @@ by `CItemFactory<CBuildableBase>::Write`. Its separate JSONL stream is
 `/tmp/iag-stellaris-payload-probe.jsonl`. This distinguishes, for example,
 attack orders from movement orders and ship construction from building queues
 without adding any execution capability.
+
+`event_state_probe.cpp` is a third exact-build, passive stream. It records event
+execution and open-event lifetime, event script/title/description/option keys,
+situation creation/destruction/stage/approach/delayed-event changes, and event
+chain begin/end. Its stream is
+`/tmp/iag-stellaris-state-probe.jsonl` (override with
+`IAG_STATE_PROBE_LOG`). The hook never evaluates dynamic event descriptions:
+that path can depend on scope and RNG. Use `resolve_event_content.py` after the
+capture to resolve the stable localization keys from base-game and DLC files.
 
 The intended discovery loop is:
 
@@ -102,6 +126,7 @@ Analyze a completed or live capture with:
 python3 analyze_capture.py \
   --commands /tmp/iag-stellaris-command-probe.jsonl \
   --payloads /tmp/iag-stellaris-payload-probe.jsonl \
+  --states /tmp/iag-stellaris-state-probe.jsonl \
   --require-zero-drops
 ```
 
@@ -118,6 +143,20 @@ The decoder distinguishes replace, append and prepend queue modes and retains
 unknown booleans under neutral `flag_*` names. Its output is evidence for
 analysis and fixture creation, not a production action request format.
 
+Decode the 16 mapped nested diplomatic action layouts with:
+
+```bash
+python3 diplomatic_action_decoder.py \
+  /path/to/segments/commands/*.ready.gz
+```
+
+The decoder accepts both the earlier capture, where most actions contain only
+the common `0x50`-byte `CDiplomaticAction` prefix, and new probe segments with
+the complete derived object. It always reports actor and recipient as split
+generation-bearing references. Derived fields are emitted only when the full
+layout was captured, and `complete=false` keeps old evidence from being
+mistaken for a complete semantic target.
+
 The analyzer treats `CCountryAI::PostAICommandsToSession()` in a first-seen
 stack as an AI-origin fingerprint. Generic command payloads are considered
 final only when their serialization occurs on the inferred game thread after
@@ -126,6 +165,110 @@ are reported separately as candidates, never as executed commands.
 
 Do not unload the shared object from a live process. The inline trampolines are
 process-lifetime instrumentation.
+
+## Long-running passive capture
+
+`long_run_capture.py` supervises the three read-only streams without attaching to
+or controlling Stellaris. It compresses only `.ready` segments, maintains a
+command/payload/state catalog, validates and archives stable `.sav`
+files, and records the active probe PID plus command sequence high-water marks
+with each save. Run it before probe injection and keep its output outside the
+Stellaris save directory:
+
+```bash
+python3 long_run_capture.py \
+  --game-pid "$(pgrep -n stellaris)" \
+  --save-root "$HOME/.local/share/Paradox Interactive/Stellaris/save games" \
+  --output "$HOME/iag-captures/human-ai-$(date -u +%Y%m%dT%H%M%SZ)"
+```
+
+The manager lowers its own CPU priority, can be restarted against the same
+output directory, and never sends a game command. Its `health.json`,
+`coverage.json`, `catalog.json`, `segment_index.jsonl`, and `save_index.jsonl`
+are intended for later automated analysis. `coverage.json` explicitly lists
+missing event/situation/chain lifecycle targets and a no-new-discovery plateau;
+it supports a human decision to end a run early but never stops the game. The
+save association is a recorded stream
+high-water mark, not a claim that filesystem save completion and command
+submission are one atomic operation. See
+[`LONG_RUNNING_AI_COMMAND_CAPTURE_4_4_6.md`](../../../docs/runtime/LONG_RUNNING_AI_COMMAND_CAPTURE_4_4_6.md)
+for the operating and recovery procedure.
+
+The third-Observe performance and Mod companion is implemented in
+[`observe_dashboard/`](observe_dashboard/). It reads the manager's compact
+`health.json`, `catalog.json`, `coverage.json`, and save index; the browser never
+opens the growing raw JSONL streams. It adds controlled Linux `perf` windows,
+thread-aware hotspots, real sampled-stack Flame Graphs, bounded history, Mod
+fingerprints and a reproducible overhead benchmark. It does not load any probe
+or inject any command. See
+[`OBSERVE_PERFORMANCE_MOD_ANALYSIS.md`](../../../docs/runtime/OBSERVE_PERFORMANCE_MOD_ANALYSIS.md)
+for the evidence boundaries and operating procedure.
+The market, event-option and war/diplomacy layouts recovered from that capture
+are recorded in
+[`MARKET_EVENT_WAR_COMMANDS_4_4_6.md`](../../../docs/runtime/MARKET_EVENT_WAR_COMMANDS_4_4_6.md).
+
+## AI megastructure exact-call counter
+
+`ai_megastructure_counter_probe.cpp` is an isolated, exact-build research
+probe for the `HandleCivilianFleets -> FindBestPositionForMegaStructure ->
+CalcAIWeight -> scripted trigger -> owned fleet list` hotspot. It is not part
+of the native runtime, passive Observe bundle, or Execution Broker.
+
+Never add it to a protected long-running session. First build and validate it
+against a disposable copy of one save:
+
+```bash
+cmake -S services/stellaris_native_runtime/research \
+  -B /tmp/iag-ai-counter-build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake --build /tmp/iag-ai-counter-build \
+  --target iag_stellaris_ai_megastructure_counter_probe -j4
+
+# Explicit arming is mandatory. Start with only the three outer hooks.
+IAG_AI_MEGA_COUNTER_ENABLE=1 \
+IAG_AI_MEGA_COUNTER_MODE=outer \
+IAG_AI_MEGA_COUNTER_LOG=/tmp/iag-ai-counter.jsonl \
+  <isolated probe loader>
+```
+
+Use `IAG_AI_MEGA_COUNTER_MODE=full` only after the outer-mode overhead phase
+passes. Pause aggregation with:
+
+```bash
+touch /tmp/iag-stellaris-ai-megastructure-counter.pause
+rm /tmp/iag-stellaris-ai-megastructure-counter.pause
+```
+
+Analyze one probe instance with:
+
+```bash
+python3 analyze_ai_megastructure_counter.py \
+  /tmp/iag-ai-counter.jsonl \
+  --output /tmp/iag-ai-counter-summary.json
+```
+
+Exact entries, sampled CPU hits and repeated opaque input tuples are separate
+metrics. A repeated tuple is not proof that a scripted-trigger result is safe
+to cache. See
+[`AI_MEGASTRUCTURE_HOTSPOT_INVESTIGATION_4_4_6.md`](../../../docs/runtime/AI_MEGASTRUCTURE_HOTSPOT_INVESTIGATION_4_4_6.md).
+
+## Mod/native compatibility audit
+
+Compare a vanilla catalog, Mod-session catalog, content inventory and optional
+save without attributing unequal-run differences to a Mod:
+
+```bash
+python3 analyze_mod_hook_compatibility.py \
+  --baseline-catalog "$HOME/iag-captures/<vanilla>/catalog.json" \
+  --modded-catalog "$HOME/iag-captures/<modded>/catalog.json" \
+  --mod-inventory "$HOME/iag-observability/<modded>/mod_inventory.json" \
+  --save "$HOME/iag-captures/<modded>/saves/<snapshot>.sav" \
+  --output /tmp/iag-mod-hook-compatibility.json
+```
+
+Older catalogs that did not record `layout_signatures` are explicitly marked
+unavailable for layout comparison. A missing field is never reported as a
+changed command layout. See
+[`MOD_NATIVE_HOOK_COMPATIBILITY_4_4_6.md`](../../../docs/runtime/MOD_NATIVE_HOOK_COMPATIBILITY_4_4_6.md).
 
 ## Windows structure matching
 
@@ -141,3 +284,17 @@ anchors, then recover and validate a separate Windows ABI/profile:
 Do not copy Linux offsets or object sizes into Windows code. The live-verified
 `move_fleet` mapping and PE identity are recorded in
 `docs/runtime/NATIVE_FLEET_MOVE_HOOK_4_4_6.md`.
+
+## Offline native producer discovery (4.5.2)
+
+`discover_command_producers.py` reads an exact, symbolized local ELF and its
+recovered SDK. It inventories UI/AI producers, retains full selected function
+bytes and instruction evidence, and reuses the existing instruction-boundary
+check for direct-call xrefs. It does not connect to a game, invoke native code,
+load a save, or change any production verification state. Output directories
+must be new; missing requested function RVAs and unresolved indirect edges
+remain explicit. Install `../tools/sdk_recovery/requirements.txt` for decoding.
+
+The evidence-backed UI/AI chains, explicit-Country candidate/rule interfaces,
+save restoration and deterministic-fixture limits are documented in
+[`NATIVE_COMMAND_PRODUCER_DISCOVERY_4_5_2.md`](../../../docs/runtime/NATIVE_COMMAND_PRODUCER_DISCOVERY_4_5_2.md).

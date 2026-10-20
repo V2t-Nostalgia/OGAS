@@ -1,0 +1,12 @@
+{
+  "schema_version": "ogas.evidence_publication.v1",
+  "version": "v0.6.0-alpha.1",
+  "python_version": "0.6.0a1",
+  "publication_state": "in_progress_not_yet_tagged",
+  "source_repository": "https://github.com/V2t-Nostalgia/OGAS",
+  "archive_repository": "https://github.com/V2t-Nostalgia/OGAS-research-evidence",
+  "release_created": false,
+  "installers_built": false,
+  "game_state_modified": false,
+  "historical_source_binding": "Only observed commits/snapshots are attributed; missing provenance remains unknown."
+}

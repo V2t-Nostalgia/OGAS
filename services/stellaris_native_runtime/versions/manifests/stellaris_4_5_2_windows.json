@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "profile_id": "stellaris-4.5.2-windows-steam-25664273",
+  "platform": "windows-x64",
+  "game_version": "Stellaris 4.5.2 (3270)",
+  "binary": {
+    "sha256": "400df27c82ddc845aa9dce79bd468d81f18f060d299cd263e3afa93aef4f7a83",
+    "size": 44948088,
+    "pe_timestamp": "0x6abeaa3f",
+    "image_size": "0x37f2000"
+  },
+  "text": {
+    "rva": "0x1000",
+    "virtual_size": "0x2214690",
+    "raw_size": "0x2214800",
+    "sha256": "0497b32bfc24606277919b01d9a533295fc930450cbf7e262315f4e9006ad5ed"
+  },
+  "legacy_capture_templates_enabled": false,
+  "anchors": [
+    {
+      "name": "CGameIdler::Idle",
+      "rva": "0x332ef0",
+      "prefix_hex": "488bc48850105553565741544155"
+    },
+    {
+      "name": "PostCommandToSession",
+      "rva": "0x5f88a0",
+      "prefix_hex": "48895c240848896c2410488974241857"
+    },
+    {
+      "name": "CFleetFlyToCoordinatesCommand::IsValid",
+      "rva": "0xa56e40",
+      "prefix_hex": "48895c240848897424105748"
+    },
+    {
+      "name": "CGalacticObject::CalcFTLPointWith",
+      "rva": "0x86dc40",
+      "prefix_hex": "48895c240848896c24104889"
+    },
+    {
+      "name": "CFleetFlyToCoordinatesCommand::GetToken",
+      "rva": "0x91d520",
+      "prefix_hex": "b8552c0000c3"
+    }
+  ]
+}

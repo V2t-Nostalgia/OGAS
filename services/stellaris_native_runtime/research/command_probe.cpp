@@ -24,12 +24,14 @@
 #include <typeinfo>
 #include <unistd.h>
 
+#include "rotating_probe_log.h"
+
 namespace {
 
 constexpr char kExpectedBuildId[] =
     "c6969e60fd81d738948222a94c0b5a0841abbffc";
 constexpr char kDefaultLogPath[] = "/tmp/iag-stellaris-command-probe.jsonl";
-constexpr char kSchema[] = "iag.stellaris.command_probe.v2";
+constexpr char kSchema[] = "iag.stellaris.command_probe.v3";
 
 // Stellaris 4.4.6 (fdde), ELF build-id c6969e60... . Offsets are relative
 // to the main executable module base and are guarded by instruction prefixes.
@@ -44,14 +46,20 @@ constexpr std::size_t kAbsoluteJumpLength = 14;
 constexpr std::size_t kRelativeJumpLength = 5;
 constexpr std::size_t kCommonHeaderSize = 0x1c;
 constexpr std::size_t kKnownPayloadCapacity = 0x60;
+// COfferTradeDealAction is the largest currently mapped nested diplomatic
+// action. Keeping the record below PIPE_BUF preserves the probe's atomic
+// writer hand-off while allowing one complete action object per record.
+constexpr std::size_t kKnownNestedPayloadCapacity = 0x2a0;
 constexpr std::size_t kRelatedIdCapacity = 16;
 constexpr std::size_t kStackCapacity = 14;
+constexpr std::size_t kVtableMethodCapacity = 8;
 constexpr std::size_t kSeenCapacity = 4096;
 
 // Object vptr offsets (the exported vtable symbol plus the Itanium ABI's two
-// header entries) for the exact build guarded below. Only layouts whose full
-// copied size has been recovered statically are listed here. Unknown commands
-// continue to expose only the common CCommand header.
+// header entries) for the exact build guarded below. Full objects are copied
+// only when their size is recovered; selected larger objects may expose a
+// separately labelled, statically recovered prefix. Unknown commands continue
+// to expose only the common CCommand header.
 constexpr std::uintptr_t kFleetFlyCommandVptrOffset = 0x42f63a8;
 constexpr std::uintptr_t kFleetCancelOrdersCommandVptrOffset = 0x42f6480;
 constexpr std::uintptr_t kFleetCancelOrderCommandVptrOffset = 0x42f6558;
@@ -64,6 +72,24 @@ constexpr std::uintptr_t kQueueFleetCommandVptrOffset = 0x42f77e8;
 constexpr std::uintptr_t kQueueFleetsCommandVptrOffset = 0x42f78c0;
 constexpr std::uintptr_t kFollowFleetCommandVptrOffset = 0x42f7dd0;
 
+// Non-fleet command layouts selected from the long-running human_ai capture.
+// The market and diplomacy wrappers are copied in full. Event selection owns
+// an embedded CEventScope, so only its statically recovered scalar prefix is
+// copied; the full object size is still reported separately.
+constexpr std::uintptr_t kAiPrepareWarCommandVptrOffset = 0x42ee3a0;
+constexpr std::uintptr_t kAddSystemClaimCommandVptrOffset = 0x42efb40;
+constexpr std::uintptr_t kRemoveSystemClaimCommandVptrOffset = 0x42efc18;
+constexpr std::uintptr_t kDiploActionProposeCommandVptrOffset = 0x42f32e0;
+constexpr std::uintptr_t kDiploActionRespondCommandVptrOffset = 0x42f33b8;
+constexpr std::uintptr_t kDiploActionVoteCommandVptrOffset = 0x42f3490;
+constexpr std::uintptr_t kDiploActionSetDefenderWarGoalCommandVptrOffset =
+    0x42f3568;
+constexpr std::uintptr_t kSelectEventOptionCommandVptrOffset = 0x437a6c0;
+constexpr std::uintptr_t kExecuteEventAfterCommandVptrOffset = 0x437a798;
+constexpr std::uintptr_t kSetSituationApproachCommandVptrOffset = 0x42f0560;
+constexpr std::uintptr_t kMarketBuyResourceCommandVptrOffset = 0x47a2c90;
+constexpr std::uintptr_t kMarketSellResourceCommandVptrOffset = 0x47a2d68;
+
 constexpr std::uintptr_t kReturnOrderVptrOffset = 0x43b2510;
 constexpr std::uintptr_t kMoveOrderVptrOffset = 0x43cec30;
 constexpr std::uintptr_t kOrbitOrderVptrOffset = 0x43ceda0;
@@ -71,6 +97,22 @@ constexpr std::uintptr_t kFollowOrderVptrOffset = 0x43cfc00;
 constexpr std::uintptr_t kMergeOrderVptrOffset = 0x43cfee0;
 constexpr std::uintptr_t kRepairOrderVptrOffset = 0x43cf7b0;
 constexpr std::uintptr_t kJumpDriveOrderVptrOffset = 0x43d1b38;
+constexpr std::uintptr_t kDeclareWarActionVptrOffset = 0x438f7e8;
+constexpr std::uintptr_t kOfferPeaceActionVptrOffset = 0x438f9a0;
+constexpr std::uintptr_t kInviteToFederationActionVptrOffset = 0x438fec8;
+constexpr std::uintptr_t kFormDefensivePactActionVptrOffset = 0x4390ff8;
+constexpr std::uintptr_t kFormCommercialPactActionVptrOffset = 0x43916d8;
+constexpr std::uintptr_t kBreakCommercialPactActionVptrOffset = 0x4391890;
+constexpr std::uintptr_t kFormResearchAgreementActionVptrOffset = 0x4391a48;
+constexpr std::uintptr_t kFormMigrationPactActionVptrOffset = 0x4391db8;
+constexpr std::uintptr_t kBreakMigrationPactActionVptrOffset = 0x4391f70;
+constexpr std::uintptr_t kMakeRivalActionVptrOffset = 0x4392ee8;
+constexpr std::uintptr_t kInsultActionVptrOffset = 0x4393258;
+constexpr std::uintptr_t kCloseBordersActionVptrOffset = 0x4393410;
+constexpr std::uintptr_t kOpenBordersActionVptrOffset = 0x43935c8;
+constexpr std::uintptr_t kCreateEmbassyActionVptrOffset = 0x4393ca8;
+constexpr std::uintptr_t kOfferTradeDealActionVptrOffset = 0x4395f98;
+constexpr std::uintptr_t kDemandSubjugationActionVptrOffset = 0x4398928;
 
 constexpr std::array<unsigned char, kSessionPostHookLength>
     kSessionPostPrefix = {
@@ -115,23 +157,31 @@ struct ProbeEvent {
   std::uint8_t field_17_u8 = 0;
   Phase phase = Phase::kSessionPost;
   std::uint8_t stack_depth = 0;
+  std::uint16_t known_command_object_size = 0;
   std::uint16_t known_command_size = 0;
+  std::uint16_t known_nested_object_size = 0;
   std::uint16_t known_nested_size = 0;
   std::uint8_t related_id_count = 0;
+  std::uint8_t known_nested_complete = 0;
+  std::uint8_t command_vtable_fingerprint_included = 0;
+  std::uint8_t nested_vtable_fingerprint_included = 0;
   std::uintptr_t nested_object = 0;
   std::uintptr_t nested_vtable = 0;
   std::uintptr_t nested_type_info = 0;
   std::array<unsigned char, kCommonHeaderSize> common_header{};
   std::array<unsigned char, kKnownPayloadCapacity> known_command_payload{};
-  std::array<unsigned char, kKnownPayloadCapacity> known_nested_payload{};
+  std::array<unsigned char, kKnownNestedPayloadCapacity> known_nested_payload{};
   std::array<std::uint32_t, kRelatedIdCapacity> related_ids{};
   std::array<std::uintptr_t, kStackCapacity> stack{};
+  std::array<std::uintptr_t, kVtableMethodCapacity> command_vtable_methods{};
+  std::array<std::uintptr_t, kVtableMethodCapacity> nested_vtable_methods{};
 };
 
-static_assert(sizeof(ProbeEvent) <= 1024);
+static_assert(sizeof(ProbeEvent) <= 2048);
 
 struct KnownLayout {
-  std::size_t size = 0;
+  std::size_t object_size = 0;
+  std::size_t capture_size = 0;
   std::size_t nested_pointer_offset = 0;
   std::size_t fleet_array_offset = 0;
 };
@@ -159,11 +209,12 @@ HookPatch g_session_post_patch;
 HookPatch g_dispatch_order_patch;
 HookPatch g_execute_sync_patch;
 std::array<std::atomic<std::uintptr_t>, kSeenCapacity> g_seen_vtables{};
+std::array<std::atomic<std::uintptr_t>, kSeenCapacity> g_seen_nested_vtables{};
 std::atomic<std::uint64_t> g_sequence{0};
 std::atomic<std::uint64_t> g_dropped{0};
 int g_event_read_fd = -1;
 int g_event_write_fd = -1;
-int g_log_fd = -1;
+iag::stellaris::research::RotatingProbeLog g_event_log;
 char g_probe_status[256] = "not_initialized";
 thread_local bool g_inside_session_post = false;
 thread_local bool g_inside_dispatch_order = false;
@@ -358,10 +409,12 @@ std::uint64_t ClockNanoseconds(clockid_t clock) {
          static_cast<std::uint64_t>(value.tv_nsec);
 }
 
-bool ClaimFirstVtable(std::uintptr_t vtable) {
+bool ClaimFirstVtable(
+    std::uintptr_t vtable,
+    std::array<std::atomic<std::uintptr_t>, kSeenCapacity>& seen_vtables) {
   std::size_t slot = (vtable >> 4U) % kSeenCapacity;
   for (std::size_t probe = 0; probe < 32; ++probe) {
-    auto& entry = g_seen_vtables[(slot + probe) % kSeenCapacity];
+    auto& entry = seen_vtables[(slot + probe) % kSeenCapacity];
     std::uintptr_t observed = entry.load(std::memory_order_relaxed);
     if (observed == vtable) {
       return false;
@@ -378,34 +431,74 @@ KnownLayout CommandLayout(std::uintptr_t vptr_offset) {
   switch (vptr_offset) {
     case kFleetFlyCommandVptrOffset:
     case kSendFleetCommandVptrOffset:
-      return {.size = 0x50};
+      return {.object_size = 0x50, .capture_size = 0x50};
     case kFleetCancelOrdersCommandVptrOffset:
-      return {.size = 0x38, .fleet_array_offset = 0x20};
+      return {
+          .object_size = 0x38,
+          .capture_size = 0x38,
+          .fleet_array_offset = 0x20,
+      };
     case kFleetCancelOrderCommandVptrOffset:
     case kFollowFleetCommandVptrOffset:
-      return {.size = 0x28};
+      return {.object_size = 0x28, .capture_size = 0x28};
     case kFleetEmergencyFtlCommandVptrOffset:
-      return {.size = 0x20};
+      return {.object_size = 0x20, .capture_size = 0x20};
     case kFleetOrbitCommandVptrOffset:
-      return {.size = 0x40};
+      return {.object_size = 0x40, .capture_size = 0x40};
     case kFleetUpgradeCommandVptrOffset:
-      return {.size = 0x30};
+      return {.object_size = 0x30, .capture_size = 0x30};
     case kMergeFleetsCommandVptrOffset:
-      return {.size = 0x40, .fleet_array_offset = 0x20};
+      return {
+          .object_size = 0x40,
+          .capture_size = 0x40,
+          .fleet_array_offset = 0x20,
+      };
     case kQueueFleetCommandVptrOffset:
-      return {.size = 0x30, .nested_pointer_offset = 0x28};
+      return {
+          .object_size = 0x30,
+          .capture_size = 0x30,
+          .nested_pointer_offset = 0x28,
+      };
     case kQueueFleetsCommandVptrOffset:
       return {
-          .size = 0x48,
+          .object_size = 0x48,
+          .capture_size = 0x48,
           .nested_pointer_offset = 0x40,
           .fleet_array_offset = 0x20,
       };
+    case kMarketBuyResourceCommandVptrOffset:
+    case kMarketSellResourceCommandVptrOffset:
+      return {.object_size = 0x40, .capture_size = 0x40};
+    case kSelectEventOptionCommandVptrOffset:
+      return {.object_size = 0x1a0, .capture_size = 0x30};
+    case kExecuteEventAfterCommandVptrOffset:
+      return {.object_size = 0x198, .capture_size = 0x28};
+    case kSetSituationApproachCommandVptrOffset:
+      return {.object_size = 0x50, .capture_size = 0x50};
+    case kAiPrepareWarCommandVptrOffset:
+      return {.object_size = 0x48, .capture_size = 0x48};
+    case kAddSystemClaimCommandVptrOffset:
+      return {.object_size = 0x30, .capture_size = 0x30};
+    case kRemoveSystemClaimCommandVptrOffset:
+      return {.object_size = 0x28, .capture_size = 0x28};
+    case kDiploActionProposeCommandVptrOffset:
+      return {
+          .object_size = 0x28,
+          .capture_size = 0x28,
+          .nested_pointer_offset = 0x20,
+      };
+    case kDiploActionRespondCommandVptrOffset:
+      return {.object_size = 0x30, .capture_size = 0x30};
+    case kDiploActionVoteCommandVptrOffset:
+      return {.object_size = 0x30, .capture_size = 0x30};
+    case kDiploActionSetDefenderWarGoalCommandVptrOffset:
+      return {.object_size = 0x48, .capture_size = 0x48};
     default:
       return {};
   }
 }
 
-std::size_t NestedOrderSize(std::uintptr_t vptr_offset) {
+std::size_t NestedObjectSize(std::uintptr_t vptr_offset) {
   switch (vptr_offset) {
     case kReturnOrderVptrOffset:
     case kRepairOrderVptrOffset:
@@ -419,21 +512,56 @@ std::size_t NestedOrderSize(std::uintptr_t vptr_offset) {
       return 0x58;
     case kMergeOrderVptrOffset:
       return 0x30;
+    case kOpenBordersActionVptrOffset:
+    case kCloseBordersActionVptrOffset:
+    case kMakeRivalActionVptrOffset:
+    case kCreateEmbassyActionVptrOffset:
+    case kFormCommercialPactActionVptrOffset:
+    case kFormDefensivePactActionVptrOffset:
+    case kFormResearchAgreementActionVptrOffset:
+    case kFormMigrationPactActionVptrOffset:
+    case kBreakMigrationPactActionVptrOffset:
+    case kBreakCommercialPactActionVptrOffset:
+    case kInsultActionVptrOffset:
+      return 0x50;
+    case kDeclareWarActionVptrOffset:
+      return 0x90;
+    case kOfferPeaceActionVptrOffset:
+      return 0x68;
+    case kInviteToFederationActionVptrOffset:
+      return 0xb8;
+    case kOfferTradeDealActionVptrOffset:
+      return 0x2a0;
+    case kDemandSubjugationActionVptrOffset:
+      return 0x1e0;
     default:
       return 0;
   }
+}
+
+void CaptureVtableFingerprint(
+    std::uintptr_t vtable,
+    std::array<std::uintptr_t, kVtableMethodCapacity>* destination) {
+  if (vtable == 0) {
+    return;
+  }
+  const auto* methods = reinterpret_cast<const std::uintptr_t*>(vtable);
+  std::memcpy(destination->data(), methods, sizeof(*destination));
 }
 
 void CaptureKnownFields(ProbeEvent* event, const void* command) {
   const auto* bytes = static_cast<const unsigned char*>(command);
   const auto vptr_offset = event->vtable - g_module_base;
   const KnownLayout layout = CommandLayout(vptr_offset);
-  if (layout.size == 0 || layout.size > event->known_command_payload.size()) {
+  if (layout.capture_size == 0 ||
+      layout.capture_size > event->known_command_payload.size()) {
     return;
   }
-  event->known_command_size = static_cast<std::uint16_t>(layout.size);
+  event->known_command_object_size =
+      static_cast<std::uint16_t>(layout.object_size);
+  event->known_command_size = static_cast<std::uint16_t>(layout.capture_size);
   std::memcpy(
-      event->known_command_payload.data(), command, layout.size);
+      event->known_command_payload.data(), command, layout.capture_size);
 
   if (layout.fleet_array_offset != 0) {
     const auto* array = bytes + layout.fleet_array_offset;
@@ -465,11 +593,25 @@ void CaptureKnownFields(ProbeEvent* event, const void* command) {
   event->nested_type_info = *(reinterpret_cast<const std::uintptr_t*>(
                                 event->nested_vtable) - 1);
   const std::size_t nested_size =
-      NestedOrderSize(event->nested_vtable - g_module_base);
-  if (nested_size == 0 || nested_size > event->known_nested_payload.size()) {
+      NestedObjectSize(event->nested_vtable - g_module_base);
+  if (nested_size == 0) {
+    if (vptr_offset == kDiploActionProposeCommandVptrOffset) {
+      constexpr std::size_t kDiplomaticActionBasePrefixSize = 0x50;
+      event->known_nested_size = kDiplomaticActionBasePrefixSize;
+      std::memcpy(
+          event->known_nested_payload.data(),
+          nested,
+          kDiplomaticActionBasePrefixSize);
+    }
     return;
   }
+  if (nested_size > event->known_nested_payload.size()) {
+    return;
+  }
+  event->known_nested_object_size =
+      static_cast<std::uint16_t>(nested_size);
   event->known_nested_size = static_cast<std::uint16_t>(nested_size);
+  event->known_nested_complete = 1;
   std::memcpy(event->known_nested_payload.data(), nested, nested_size);
 }
 
@@ -514,7 +656,10 @@ void CaptureEvent(Phase phase, void* command, std::uintptr_t caller) {
   event.phase = phase;
   std::memcpy(event.common_header.data(), command, event.common_header.size());
   CaptureKnownFields(&event, command);
-  if (ClaimFirstVtable(event.vtable)) {
+  if (ClaimFirstVtable(event.vtable, g_seen_vtables)) {
+    event.command_vtable_fingerprint_included = 1;
+    CaptureVtableFingerprint(
+        event.vtable, &event.command_vtable_methods);
     void* frames[kStackCapacity]{};
     const int depth = ::backtrace(frames, static_cast<int>(kStackCapacity));
     event.stack_depth = static_cast<std::uint8_t>(depth > 0 ? depth : 0);
@@ -522,6 +667,12 @@ void CaptureEvent(Phase phase, void* command, std::uintptr_t caller) {
       event.stack[static_cast<std::size_t>(index)] =
           reinterpret_cast<std::uintptr_t>(frames[index]);
     }
+  }
+  if (event.nested_vtable != 0 &&
+      ClaimFirstVtable(event.nested_vtable, g_seen_nested_vtables)) {
+    event.nested_vtable_fingerprint_included = 1;
+    CaptureVtableFingerprint(
+        event.nested_vtable, &event.nested_vtable_methods);
   }
   const ssize_t written = ::write(g_event_write_fd, &event, sizeof(event));
   if (written != static_cast<ssize_t>(sizeof(event))) {
@@ -755,7 +906,8 @@ void AppendJsonString(std::string* output, std::string_view value) {
   output->push_back('"');
 }
 
-std::string SerializeEvent(const ProbeEvent& event) {
+std::string SerializeEvent(
+    const ProbeEvent& event, std::uint64_t writer_dropped_before) {
   std::string output;
   output.reserve(1536);
   output += "{\"schema\":\"";
@@ -774,6 +926,8 @@ std::string SerializeEvent(const ProbeEvent& event) {
   output += ",\"realtime_ns\":" + std::to_string(event.realtime_ns);
   output += ",\"thread_id\":" + std::to_string(event.thread_id);
   output += ",\"dropped_before\":" + std::to_string(event.dropped_before);
+  output += ",\"writer_dropped_before\":" +
+            std::to_string(writer_dropped_before);
   output += ",\"command\":\"" + Hex(event.command) + "\"";
   output += ",\"vtable\":\"" + AddressLabel(event.vtable) + "\"";
   output += ",\"type_info\":\"" + AddressLabel(event.type_info) + "\"";
@@ -792,6 +946,8 @@ std::string SerializeEvent(const ProbeEvent& event) {
   output += ",\"caller\":";
   AppendJsonString(&output, AddressLabel(event.caller));
   output += ",\"common_header_hex\":\"" + BytesHex(event.common_header) + "\"";
+  output += ",\"known_command_object_size\":" +
+            std::to_string(event.known_command_object_size);
   output += ",\"known_command_size\":" +
             std::to_string(event.known_command_size);
   output += ",\"known_command_hex\":\"" +
@@ -804,8 +960,12 @@ std::string SerializeEvent(const ProbeEvent& event) {
             AddressLabel(event.nested_type_info) + "\"";
   output += ",\"nested_type\":";
   AppendJsonString(&output, TypeName(event.nested_type_info));
+  output += ",\"known_nested_object_size\":" +
+            std::to_string(event.known_nested_object_size);
   output += ",\"known_nested_size\":" +
             std::to_string(event.known_nested_size);
+  output += ",\"known_nested_complete\":" +
+            std::string(event.known_nested_complete ? "true" : "false");
   output += ",\"known_nested_hex\":\"" +
             BytesHex(event.known_nested_payload, event.known_nested_size) +
             "\"";
@@ -815,6 +975,30 @@ std::string SerializeEvent(const ProbeEvent& event) {
       output.push_back(',');
     }
     output += std::to_string(event.related_ids[index]);
+  }
+  output += "]";
+  output += ",\"command_vtable_methods\":[";
+  if (event.command_vtable_fingerprint_included) {
+    for (std::size_t index = 0; index < event.command_vtable_methods.size();
+         ++index) {
+      if (index != 0) {
+        output.push_back(',');
+      }
+      AppendJsonString(
+          &output, AddressLabel(event.command_vtable_methods[index]));
+    }
+  }
+  output += "]";
+  output += ",\"nested_vtable_methods\":[";
+  if (event.nested_vtable_fingerprint_included) {
+    for (std::size_t index = 0; index < event.nested_vtable_methods.size();
+         ++index) {
+      if (index != 0) {
+        output.push_back(',');
+      }
+      AppendJsonString(
+          &output, AddressLabel(event.nested_vtable_methods[index]));
+    }
   }
   output += "]";
   output += ",\"first_seen_stack\":[";
@@ -828,26 +1012,18 @@ std::string SerializeEvent(const ProbeEvent& event) {
   return output;
 }
 
-void WriteAll(int fd, std::string_view value) {
-  while (!value.empty()) {
-    const ssize_t written = ::write(fd, value.data(), value.size());
-    if (written > 0) {
-      value.remove_prefix(static_cast<std::size_t>(written));
-      continue;
-    }
-    if (written < 0 && errno == EINTR) {
-      continue;
-    }
-    break;
-  }
-}
-
 void* WriterThread(void*) {
   ProbeEvent event;
+  std::uint64_t writer_dropped = 0;
   while (true) {
     const ssize_t received = ::read(g_event_read_fd, &event, sizeof(event));
     if (received == static_cast<ssize_t>(sizeof(event))) {
-      WriteAll(g_log_fd, SerializeEvent(event));
+      const std::string line = SerializeEvent(event, writer_dropped);
+      if (g_event_log.Write(line, event.monotonic_ns)) {
+        writer_dropped = 0;
+      } else {
+        ++writer_dropped;
+      }
       continue;
     }
     if (received < 0 && errno == EINTR) {
@@ -865,11 +1041,6 @@ bool OpenEventStream() {
   const char* log_path = configured_path != nullptr && configured_path[0] != '\0'
                              ? configured_path
                              : kDefaultLogPath;
-  g_log_fd = ::open(log_path, O_CREAT | O_WRONLY | O_APPEND | O_CLOEXEC, 0600);
-  if (g_log_fd < 0) {
-    std::snprintf(g_probe_status, sizeof(g_probe_status), "log_open_failed");
-    return false;
-  }
   int descriptors[2]{};
   if (::pipe2(descriptors, O_CLOEXEC) != 0) {
     std::snprintf(g_probe_status, sizeof(g_probe_status), "pipe_create_failed");
@@ -894,7 +1065,22 @@ bool OpenEventStream() {
   header += "\",\"dispatch_order_offset\":\"" + Hex(kDispatchOrderOffset);
   header += "\",\"execute_sync_offset\":\"" + Hex(kExecuteSyncOffset);
   header += "\"}\n";
-  WriteAll(g_log_fd, header);
+  if (!g_event_log.Open(
+          log_path,
+          std::move(header),
+          "IAG_COMMAND_PROBE_ROTATE_BYTES",
+          "IAG_COMMAND_PROBE_ROTATE_SECONDS",
+          "IAG_PROBE_MIN_FREE_BYTES",
+          128ULL * 1024ULL * 1024ULL,
+          15ULL * 60ULL,
+          5ULL * 1024ULL * 1024ULL * 1024ULL)) {
+    std::snprintf(
+        g_probe_status,
+        sizeof(g_probe_status),
+        "%s",
+        g_event_log.error());
+    return false;
+  }
 
   pthread_t thread{};
   if (::pthread_create(&thread, nullptr, &WriterThread, nullptr) != 0) {

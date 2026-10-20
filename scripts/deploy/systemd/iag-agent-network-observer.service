@@ -1,5 +1,5 @@
 [Unit]
-Description=Imperial Auto Governor passive network observer
+Description=OGAS passive network observer
 Documentation=file:@PROJECT_ROOT@/README.md
 Wants=network-online.target
 After=network-online.target

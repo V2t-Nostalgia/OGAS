@@ -30,6 +30,8 @@ def builtin_application_registry() -> ApplicationRegistry:
                     "build_zone",
                     "upgrade_building",
                     "replace_building",
+                    "market_buy_resource",
+                    "market_sell_resource",
                 ),
                 required_platform_capabilities=(
                     "stellaris_save_state_v1",
@@ -39,6 +41,8 @@ def builtin_application_registry() -> ApplicationRegistry:
                     "stellaris.action.build_zone.v1",
                     "stellaris.action.upgrade_building.v1",
                     "stellaris.action.replace_building.v1",
+                    "stellaris.action.market_buy_resource.v1",
+                    "stellaris.action.market_sell_resource.v1",
                 ),
             ),
             ApplicationManifest(
@@ -119,8 +123,17 @@ def builtin_application_registry() -> ApplicationRegistry:
                 ),
                 agent_roles=("extension_operator",),
                 message_types=("extension_capability", "escalation"),
-                action_types=(),
-                required_platform_capabilities=("stellaris.execution.v1",),
+                action_types=(
+                    "select_event_option",
+                    "respond_to_diplomatic_action",
+                    "vote_on_diplomatic_action",
+                ),
+                required_platform_capabilities=(
+                    "stellaris.execution.v1",
+                    "stellaris.action.select_event_option.v1",
+                    "stellaris.action.respond_to_diplomatic_action.v1",
+                    "stellaris.action.vote_on_diplomatic_action.v1",
+                ),
             ),
         ]
     )

@@ -1,5 +1,11 @@
 # Native UI prototype assets
 
+OGAS `v0.6.0-alpha.1` does not redistribute these optional PNG/DDS files.
+Their rights have not been cleared in the available records. Local originals
+are retained in the restricted evidence inventory; earlier Git history is not
+rewritten. The prototype source and historical UI verification remain available,
+but reproducing its artwork requires your own appropriately licensed images.
+
 `assistant_portrait_source.png` is the user-supplied source image for the
 research-only right-side IAG launcher. The runtime version is a 512 x 512 DXT5
 texture at `../gfx/interface/iag/assistant_portrait.dds`.

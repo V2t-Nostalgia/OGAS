@@ -55,6 +55,7 @@ using ActionFactory = std::unique_ptr<ActionInvocation> (*)(
 
 enum class ActionParameterType {
   kUint32,
+  kUint64,
   kString,
   kBoolean,
 };
@@ -111,6 +112,8 @@ class ActionRegistration final {
     std::string_view value,
     std::size_t maximum) noexcept;
 [[nodiscard]] std::optional<std::uint32_t> ParseUint32(
+    std::string_view value) noexcept;
+[[nodiscard]] std::optional<std::uint64_t> ParseUint64(
     std::string_view value) noexcept;
 
 }  // namespace iag::native_runtime

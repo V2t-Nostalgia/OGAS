@@ -23,7 +23,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     application = QApplication(sys.argv[:1])
-    application.setApplicationName("Imperial Auto Governor Overlay Display Test")
+    application.setApplicationName("OGAS Overlay Display Test")
     try:
         configuration = load_display_test_configuration(
             args.config,
@@ -33,7 +33,7 @@ def main() -> int:
         window.show()
         return int(application.exec())
     except Exception as error:  # noqa: BLE001 - GUI startup boundary.
-        QMessageBox.critical(None, "IAG Overlay Display Test", str(error))
+        QMessageBox.critical(None, "OGAS Overlay Display Test", str(error))
         return 1
 
 

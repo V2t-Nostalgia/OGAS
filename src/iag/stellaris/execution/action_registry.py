@@ -17,6 +17,7 @@ from iag.core.contracts import FrozenContract
 
 ACTION_TYPE_RE = re.compile(r"^[a-z][a-z0-9_]{1,63}$")
 TECHNOLOGY_ID_RE = re.compile(r"^[A-Za-z0-9_.-]+$")
+RESOURCE_KEY_RE = re.compile(r"^[A-Za-z0-9_.-]+$")
 
 
 class ActionRisk(StrEnum):
@@ -24,6 +25,7 @@ class ActionRisk(StrEnum):
 
     STATE_CHANGE = "state_change"
     DESTRUCTIVE_STATE_CHANGE = "destructive_state_change"
+    IRREVERSIBLE_STATE_CHANGE = "irreversible_state_change"
     STATE_CHANGE_REQUIRES_FRESH_SAVE = "state_change_requires_fresh_save"
 
 
@@ -31,6 +33,7 @@ class VerificationState(StrEnum):
     """Evidence level currently attached to an action implementation."""
 
     LIVE_VERIFIED = "live_verified"
+    BUILD_VALIDATION_PENDING = "build_validation_pending"
     PAIRED_CAPTURE = "paired_capture"
 
 
@@ -170,6 +173,38 @@ class ResearchTarget(SemanticTarget):
     )
 
 
+class MarketTradeTarget(SemanticTarget):
+    """One immediate market trade expressed in game-defined lots."""
+
+    resource_key: str = Field(
+        min_length=1,
+        max_length=160,
+        pattern=RESOURCE_KEY_RE.pattern,
+    )
+    lots: int = Field(ge=1, le=0x7FFFFFFF)
+
+
+class SelectEventOptionTarget(SemanticTarget):
+    """Choose a currently legal option from one exact open event instance."""
+
+    open_event_id: int = Field(ge=0, le=0x7FFFFFFF)
+    option_index: int = Field(ge=0, le=0x7FFFFFFF)
+
+
+class RespondDiplomaticActionTarget(SemanticTarget):
+    """Accept or reject one currently pending diplomatic action."""
+
+    pending_action_id: int = Field(ge=1, le=0xFFFFFFFFFFFFFFFF)
+    accept: bool
+
+
+class VoteDiplomaticActionTarget(SemanticTarget):
+    """Cast this authority country's vote on a pending diplomatic action."""
+
+    pending_action_id: int = Field(ge=1, le=0xFFFFFFFFFFFFFFFF)
+    support: bool
+
+
 class BuildShipTarget(SemanticTarget):
     shipyard_starbase_id: int = Field(ge=0)
     design_id: int = Field(ge=0)
@@ -276,14 +311,13 @@ class ActionSpec(FrozenContract):
             raise ValueError(
                 "Backend verification must cover every supported backend exactly."
             )
-        aggregate = (
-            VerificationState.LIVE_VERIFIED
-            if any(
-                item.verification_state == VerificationState.LIVE_VERIFIED
-                for item in self.backend_verification
-            )
-            else VerificationState.PAIRED_CAPTURE
-        )
+        states = {item.verification_state for item in self.backend_verification}
+        if VerificationState.LIVE_VERIFIED in states:
+            aggregate = VerificationState.LIVE_VERIFIED
+        elif VerificationState.BUILD_VALIDATION_PENDING in states:
+            aggregate = VerificationState.BUILD_VALIDATION_PENDING
+        else:
+            aggregate = VerificationState.PAIRED_CAPTURE
         if self.verification_state != aggregate:
             raise ValueError(
                 "Action verification must equal the strongest backend evidence."
@@ -542,6 +576,66 @@ BUILTIN_ACTION_SPECS: tuple[ActionSpec, ...] = (
         ),
         backend_verification=(
             (BackendId.SESSION_PROXY, VerificationState.PAIRED_CAPTURE),
+            (BackendId.NATIVE_RUNTIME, VerificationState.LIVE_VERIFIED),
+        ),
+        migration_note=None,
+    ),
+    _spec(
+        "market_buy_resource",
+        MarketTradeTarget,
+        ActionRisk.STATE_CHANGE,
+        VerificationState.LIVE_VERIFIED,
+        supported_backends=(BackendId.NATIVE_RUNTIME,),
+        broker_enabled_backends=(BackendId.NATIVE_RUNTIME,),
+        backend_verification=(
+            (BackendId.NATIVE_RUNTIME, VerificationState.LIVE_VERIFIED),
+        ),
+        migration_note=None,
+    ),
+    _spec(
+        "market_sell_resource",
+        MarketTradeTarget,
+        ActionRisk.STATE_CHANGE,
+        VerificationState.LIVE_VERIFIED,
+        supported_backends=(BackendId.NATIVE_RUNTIME,),
+        broker_enabled_backends=(BackendId.NATIVE_RUNTIME,),
+        backend_verification=(
+            (BackendId.NATIVE_RUNTIME, VerificationState.LIVE_VERIFIED),
+        ),
+        migration_note=None,
+    ),
+    _spec(
+        "select_event_option",
+        SelectEventOptionTarget,
+        ActionRisk.DESTRUCTIVE_STATE_CHANGE,
+        VerificationState.LIVE_VERIFIED,
+        supported_backends=(BackendId.NATIVE_RUNTIME,),
+        broker_enabled_backends=(BackendId.NATIVE_RUNTIME,),
+        backend_verification=(
+            (BackendId.NATIVE_RUNTIME, VerificationState.LIVE_VERIFIED),
+        ),
+        migration_note=None,
+    ),
+    _spec(
+        "respond_to_diplomatic_action",
+        RespondDiplomaticActionTarget,
+        ActionRisk.DESTRUCTIVE_STATE_CHANGE,
+        VerificationState.LIVE_VERIFIED,
+        supported_backends=(BackendId.NATIVE_RUNTIME,),
+        broker_enabled_backends=(BackendId.NATIVE_RUNTIME,),
+        backend_verification=(
+            (BackendId.NATIVE_RUNTIME, VerificationState.LIVE_VERIFIED),
+        ),
+        migration_note=None,
+    ),
+    _spec(
+        "vote_on_diplomatic_action",
+        VoteDiplomaticActionTarget,
+        ActionRisk.STATE_CHANGE,
+        VerificationState.LIVE_VERIFIED,
+        supported_backends=(BackendId.NATIVE_RUNTIME,),
+        broker_enabled_backends=(BackendId.NATIVE_RUNTIME,),
+        backend_verification=(
             (BackendId.NATIVE_RUNTIME, VerificationState.LIVE_VERIFIED),
         ),
         migration_note=None,

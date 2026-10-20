@@ -17,6 +17,8 @@ action_types = [
   "build_zone",
   "upgrade_building",
   "replace_building",
+  "market_buy_resource",
+  "market_sell_resource",
 ]
 required_platform_capabilities = [
   "stellaris_save_state_v1",
@@ -26,4 +28,6 @@ required_platform_capabilities = [
   "stellaris.action.build_zone.v1",
   "stellaris.action.upgrade_building.v1",
   "stellaris.action.replace_building.v1",
+  "stellaris.action.market_buy_resource.v1",
+  "stellaris.action.market_sell_resource.v1",
 ]

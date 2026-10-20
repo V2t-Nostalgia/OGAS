@@ -1,10 +1,10 @@
-# Control Center
+# OGAS Control Center
 
 控制中心承载战役会话、模型配置、周期巡检、联网检索开关、执行状态和前端 API。
 
 - `web_console.py` 是 HTTP/HTTPS 服务入口。
 - `windows_agent_gui.py` 是 Windows 一键启动与本地证书配置界面。
-- `web/` 是当前灰风风格前端。
+- `web/` 是 OGAS 浏览器前端。
 - `agent_config.*.example.json` 是无秘密的系统示例配置。
 - `IAGWindowsAgent.spec` 从 monorepo 构建独立 Windows Agent。
 

@@ -3,9 +3,9 @@ requires = ["setuptools>=75", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "imperial-auto-governor-platform"
-version = "0.5.10"
-description = "A multi-agent Stellaris governance platform built from Imperial Auto Governor."
+name = "ogas"
+version = "0.6.0a1"
+description = "Specialist AI agents for persistent, evidence-driven Stellaris empire governance."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "GPL-3.0-only"}
@@ -23,6 +23,11 @@ dependencies = [
   "pydivert==3.1.3; platform_system == 'Windows'",
 ]
 
+[project.urls]
+Repository = "https://github.com/V2t-Nostalgia/OGAS"
+Documentation = "https://github.com/V2t-Nostalgia/OGAS/blob/main/README.md"
+Issues = "https://github.com/V2t-Nostalgia/OGAS/issues"
+
 [project.optional-dependencies]
 overlay = ["PySide6>=6.8,<7"]
 
@@ -37,6 +42,7 @@ include = ["iag*"]
 "iag.applications.economy_governance" = ["*.toml", "prompts/*.md", "schemas/*.json"]
 "iag.applications.fleet_operations" = ["*.toml", "*.md", "prompts/*.md"]
 "iag.applications.research_strategy" = ["*.toml", "*.md", "prompts/*.md"]
+"iag.applications.etc" = ["*.toml"]
 "iag.infrastructure.llm" = ["*.json"]
 
 [tool.ruff]

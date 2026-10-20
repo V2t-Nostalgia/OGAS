@@ -1,4 +1,4 @@
-Imperial Auto Governor
+OGAS (formerly Imperial Auto Governor)
 Copyright (C) 2026 Nostalgia
 and Imperial Auto Governor contributors
 
@@ -25,4 +25,16 @@ is not endorsed by those owners.
 Third-party programs and libraries are not relicensed by this notice. Their
 own copyright and license terms continue to apply. Captured network traffic,
 game saves, user prompts, API credentials, calibration images, and generated
-runtime state are not part of the distributable source package.
+runtime state are not part of the distributable source package. Separately
+reviewed research evidence is indexed in docs/research/EVIDENCE_ARCHIVE.md;
+withheld originals are not granted redistribution rights by that index.
+
+The SDK recovery research tooling includes adapted MIT-licensed components
+from Yidhar/stellaris-mcp, copyright (c) 2026 Yidhar, revision
+6cc8e82013f88d7ef51d906f3cdfa44054b7a250. The source attribution and complete
+license are retained in services/stellaris_native_runtime/tools/sdk_recovery/vendor/.
+
+The optional offline script candidate tooling uses the MIT-licensed CWTools
+parser (CWTools 0.6.0-alpha), copyright (c) 2018 Thomas Boby. Its upstream
+notice and license are retained alongside the parser bridge. Restored NuGet
+dependencies keep their own licenses and are not bundled in the source tree.

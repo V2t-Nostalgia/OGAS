@@ -1559,7 +1559,7 @@ function renderCampaignCatalog(catalog, running = currentJobRunning) {
   $("campaign-count").textContent =
     conversations.filter((item) => !item.archived).length + " 局";
   $("conversation-title").textContent =
-    "灰风 · " + (active?.title || "本局上下文");
+    "OGAS · " + (active?.title || "本局上下文");
 
   const bindingCard = $("campaign-binding-card");
   bindingCard.dataset.state = binding.state || "unbound";
@@ -1908,7 +1908,7 @@ function renderConversationApplicationSelector(model, running) {
   );
   $("chat-input").placeholder = selected
     ? "向" + selected.display_name + "下达要求或询问本领域状态。Enter 发送，Shift+Enter 换行。"
-    : "告诉灰风新的要求。Enter 发送，Shift+Enter 换行。";
+    : "告诉OGAS新的要求。Enter 发送，Shift+Enter 换行。";
   return selected;
 }
 
@@ -2031,7 +2031,7 @@ function renderStatus(status) {
   $("plan-action").textContent = formatAction(manifest);
   $("plan-reason").textContent =
     plan.reasoning_zh ||
-    "灰风会读取状态，并在本地上限内逐项准备、执行和确认建设；数量由当前经济决定。";
+    "OGAS会读取状态，并在本地上限内逐项准备、执行和确认建设；数量由当前经济决定。";
 
   const job = status.job || {};
   const running = job.state === "running";
@@ -2134,7 +2134,7 @@ function conversationRoleLabel(item) {
   if (item.role === "user") {
     return applicationName ? "玩家 → " + applicationName : "玩家";
   }
-  if (item.role === "assistant") return applicationName || "灰风";
+  if (item.role === "assistant") return applicationName || "OGAS";
   if (item.role === "tool") {
     return applicationName ? applicationName + "工具审计" : "工具审计";
   }
@@ -2735,7 +2735,7 @@ $("save-autonomy").addEventListener("click", async () => {
   const reviewIntervalMonths = Number($("save-review-interval").value);
   if (
     mode === "execute" &&
-    !window.confirm("启用后，灰风可在新同步存档到期时自动执行一项经校验建设。确认继续？")
+    !window.confirm("启用后，OGAS可在新同步存档到期时自动执行一项经校验建设。确认继续？")
   ) return;
   try {
     await post("/api/autonomy", {
@@ -3393,7 +3393,7 @@ $("save-next-decade-plan").addEventListener("click", async () => {
 $("activate-strategic-emergency").addEventListener("click", async () => {
   const title = $("strategic-emergency-title").value.trim();
   const directive = $("strategic-emergency-directive").value.trim();
-  if (!window.confirm("启用后，灰风会暂停十年计划并优先执行这项紧急指令。确认继续？")) return;
+  if (!window.confirm("启用后，OGAS会暂停十年计划并优先执行这项紧急指令。确认继续？")) return;
   try {
     await post("/api/strategy/emergency/activate", {title, directive});
     message("紧急状态已启用，十年计划已暂停");

@@ -6,5 +6,6 @@
 Original concept, architecture, and first implementation by
 Nostalgia, 2026.
 
-Subsequent work is attributed to the Imperial Auto Governor contributors and
+OGAS is the current project name; Imperial Auto Governor is its historical name.
+Subsequent work is attributed to the OGAS / Imperial Auto Governor contributors and
 to individual contributors through the repository history and DCO sign-offs.

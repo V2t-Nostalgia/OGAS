@@ -241,7 +241,7 @@ class ExecutionToolParameter(FrozenContract):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
     name: str
-    parameter_type: Literal["uint32", "string", "boolean"]
+    parameter_type: Literal["uint32", "uint64", "string", "boolean"]
     required: bool
     description: str
     minimum: int | None = None
@@ -475,6 +475,7 @@ class NativeRuntimeBackend:
             return False
         expected = {
             "uint32": int,
+            "uint64": int,
             "string": str,
             "boolean": bool,
         }[parameter.parameter_type]
@@ -484,6 +485,8 @@ class NativeRuntimeBackend:
         try:
             tool = self.manifest().get(spec.action_type, spec.action_version)
         except (KeyError, NativeRuntimeError):
+            return None
+        if tool.verification_state != VerificationState.LIVE_VERIFIED.value:
             return None
         if tool.risk_class != spec.risk_class.value:
             return None
@@ -961,13 +964,14 @@ def _runtime_target_model(tool: NativeRuntimeTool) -> type[SemanticTarget]:
     fields: dict[str, tuple[Any, Any]] = {}
     python_types: dict[str, type[Any]] = {
         "uint32": int,
+        "uint64": int,
         "string": str,
         "boolean": bool,
     }
     for parameter in tool.parameters:
         annotation = python_types[parameter.parameter_type]
         constraints: dict[str, Any] = {"description": parameter.description}
-        if parameter.parameter_type == "uint32":
+        if parameter.parameter_type in {"uint32", "uint64"}:
             constraints.update(
                 ge=parameter.minimum,
                 le=parameter.maximum,
@@ -1034,15 +1038,59 @@ def _native_registry_overlay(
         if existing.risk_class.value != tool.risk_class:
             # Conflicting metadata never weakens the reviewed upper contract.
             continue
-        if BackendId.NATIVE_RUNTIME in existing.supported_backends:
-            continue
         state = VerificationState(tool.verification_state)
-        aggregate = (
-            VerificationState.LIVE_VERIFIED
-            if existing.verification_state == VerificationState.LIVE_VERIFIED
+        if BackendId.NATIVE_RUNTIME in existing.supported_backends:
+            backend_verification = tuple(
+                BackendVerification(
+                    backend_id=item.backend_id,
+                    verification_state=(
+                        state
+                        if item.backend_id == BackendId.NATIVE_RUNTIME
+                        else item.verification_state
+                    ),
+                )
+                for item in existing.backend_verification
+            )
+            verification_states = {
+                item.verification_state for item in backend_verification
+            }
+            if VerificationState.LIVE_VERIFIED in verification_states:
+                aggregate = VerificationState.LIVE_VERIFIED
+            elif (
+                VerificationState.BUILD_VALIDATION_PENDING
+                in verification_states
+            ):
+                aggregate = VerificationState.BUILD_VALIDATION_PENDING
+            else:
+                aggregate = VerificationState.PAIRED_CAPTURE
+            enabled_backends = tuple(
+                backend_id
+                for backend_id in existing.broker_enabled_backends
+                if backend_id != BackendId.NATIVE_RUNTIME
+            )
+            if state == VerificationState.LIVE_VERIFIED:
+                enabled_backends = (*enabled_backends, BackendId.NATIVE_RUNTIME)
+            specs[key] = existing.model_copy(
+                update={
+                    "broker_enabled_backends": enabled_backends,
+                    "verification_state": aggregate,
+                    "backend_verification": backend_verification,
+                }
+            )
+            continue
+        if (
+            existing.verification_state == VerificationState.LIVE_VERIFIED
             or state == VerificationState.LIVE_VERIFIED
-            else VerificationState.PAIRED_CAPTURE
-        )
+        ):
+            aggregate = VerificationState.LIVE_VERIFIED
+        elif (
+            existing.verification_state
+            == VerificationState.BUILD_VALIDATION_PENDING
+            or state == VerificationState.BUILD_VALIDATION_PENDING
+        ):
+            aggregate = VerificationState.BUILD_VALIDATION_PENDING
+        else:
+            aggregate = VerificationState.PAIRED_CAPTURE
         specs[key] = existing.model_copy(
             update={
                 "supported_backends": (

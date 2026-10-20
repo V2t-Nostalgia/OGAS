@@ -65,6 +65,8 @@ std::string_view ParameterTypeName(ActionParameterType type) {
   switch (type) {
     case ActionParameterType::kUint32:
       return "uint32";
+    case ActionParameterType::kUint64:
+      return "uint64";
     case ActionParameterType::kString:
       return "string";
     case ActionParameterType::kBoolean:
@@ -122,6 +124,22 @@ std::optional<std::uint32_t> ParseUint32(std::string_view value) noexcept {
     return std::nullopt;
   }
   std::uint32_t parsed = 0;
+  const auto result = std::from_chars(
+      value.data(), value.data() + value.size(), parsed, 10);
+  if (result.ec != std::errc{} || result.ptr != value.data() + value.size()) {
+    return std::nullopt;
+  }
+  return parsed;
+}
+
+std::optional<std::uint64_t> ParseUint64(std::string_view value) noexcept {
+  if (value.empty() || value.size() > 20U ||
+      !std::all_of(value.begin(), value.end(), [](unsigned char character) {
+        return character >= '0' && character <= '9';
+      })) {
+    return std::nullopt;
+  }
+  std::uint64_t parsed = 0;
   const auto result = std::from_chars(
       value.data(), value.data() + value.size(), parsed, 10);
   if (result.ec != std::errc{} || result.ptr != value.data() + value.size()) {
@@ -195,6 +213,12 @@ std::string BuildToolManifestJson(const BuildProfile& profile) {
     if (descriptor == nullptr || !descriptor->supported(profile)) {
       continue;
     }
+    const std::string_view verification_state =
+        descriptor->verification_state == "live_verified" &&
+                profile.live_verification_override != nullptr &&
+                profile.live_verification_override[0] != '\0'
+            ? std::string_view{profile.live_verification_override}
+            : descriptor->verification_state;
     if (!first_tool) {
       output << ',';
     }
@@ -211,7 +235,7 @@ std::string BuildToolManifestJson(const BuildProfile& profile) {
            << "\",\"risk_class\":\""
            << JsonEscape(descriptor->risk_class)
            << "\",\"verification_state\":\""
-           << JsonEscape(descriptor->verification_state)
+           << JsonEscape(verification_state)
            << "\",\"parameters\":[";
     bool first_parameter = true;
     for (const auto& parameter : descriptor->parameters) {
@@ -225,7 +249,8 @@ std::string BuildToolManifestJson(const BuildProfile& profile) {
              << (parameter.required ? "true" : "false")
              << ",\"description\":\""
              << JsonEscape(parameter.description) << '\"';
-      if (parameter.type == ActionParameterType::kUint32) {
+      if (parameter.type == ActionParameterType::kUint32 ||
+          parameter.type == ActionParameterType::kUint64) {
         output << ",\"minimum\":" << parameter.minimum
                << ",\"maximum\":" << parameter.maximum;
       } else if (parameter.type == ActionParameterType::kString) {

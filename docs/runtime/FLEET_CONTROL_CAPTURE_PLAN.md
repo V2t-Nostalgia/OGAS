@@ -1,5 +1,8 @@
 # Fleet Control Native Capture Plan
 
+> Publication: original/local evidence paths below are provenance labels, not Git downloads. Use the [indexed archive and access status](../research/EVIDENCE_ARCHIVE.md); public copies may be privacy-redacted and originals remain retained.
+
+
 This is the handoff checklist for completing fleet movement discovery before a
 training environment consumes IAG actions. Existing `move_fleet.v1` proves one
 normal replacing inter-system movement order. It does not yet prove every

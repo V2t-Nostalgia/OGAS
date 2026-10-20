@@ -41,6 +41,7 @@ class ActionRegistryTests(unittest.TestCase):
         stop = builtin_action_registry().get("stop_research")
         move = builtin_action_registry().get("move_fleet")
         attack = builtin_action_registry().get("attack_fleet")
+        select_event = builtin_action_registry().get("select_event_option")
 
         self.assertEqual(stop.verification_state.value, "live_verified")
         self.assertEqual(
@@ -67,6 +68,33 @@ class ActionRegistryTests(unittest.TestCase):
         self.assertEqual(
             attack.verification_for(BackendId.NATIVE_RUNTIME).value,
             "live_verified",
+        )
+        self.assertEqual(
+            select_event.verification_for(BackendId.NATIVE_RUNTIME).value,
+            "live_verified",
+        )
+        self.assertEqual(
+            select_event.broker_enabled_backends,
+            (BackendId.NATIVE_RUNTIME,),
+        )
+
+    def test_diplomatic_response_is_native_enabled_after_live_validation(self) -> None:
+        response = builtin_action_registry().get("respond_to_diplomatic_action")
+
+        self.assertEqual(response.verification_state.value, "live_verified")
+        self.assertEqual(
+            response.verification_for(BackendId.NATIVE_RUNTIME).value,
+            "live_verified",
+        )
+        self.assertEqual(
+            response.broker_enabled_backends,
+            (BackendId.NATIVE_RUNTIME,),
+        )
+        self.assertEqual(
+            response.validate_target(
+                {"pending_action_id": 8096013352961, "accept": True}
+            ).model_dump(mode="json"),
+            {"pending_action_id": 8096013352961, "accept": True},
         )
 
     def test_public_targets_are_strict_and_transport_independent(self) -> None:

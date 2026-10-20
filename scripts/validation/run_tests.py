@@ -9,10 +9,12 @@ import sys
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 IGNORED_PARTS = {
     ".git",
+    ".publication",
+    ".runtime-analysis",
+    ".runtime-evidence",
     ".tmp",
     ".venv",
     "build",

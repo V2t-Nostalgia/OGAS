@@ -152,7 +152,7 @@ class DragHandle(QLabel):
 class OverlaySettingsDialog(QDialog):
     def __init__(self, settings: OverlaySettings, parent: QWidget) -> None:
         super().__init__(parent)
-        self.setWindowTitle("IAG Overlay Configuration")
+        self.setWindowTitle("OGAS Overlay Configuration")
         self.setModal(True)
         self.hotkey = QLineEdit(settings.hotkey)
         self.opacity = QDoubleSpinBox()
@@ -244,7 +244,7 @@ class OverlayWindow(QWidget):
         self._analysis_holding = False
         self._body_font = QFont()
 
-        self.setWindowTitle("IAG Game Overlay")
+        self.setWindowTitle("OGAS Game Overlay")
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
@@ -676,7 +676,7 @@ class OverlayWindow(QWidget):
         self.connection_label.setToolTip(detail)
 
     def show_hotkey_error(self, detail: str) -> None:
-        QMessageBox.critical(self, "IAG Overlay hotkey", detail)
+        QMessageBox.critical(self, "OGAS Overlay hotkey", detail)
 
     def open_settings(self) -> None:
         dialog = OverlaySettingsDialog(self.settings, self)

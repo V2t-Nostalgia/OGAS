@@ -14,6 +14,7 @@ namespace {
 using CancelResearchCtorFn = void (*)(void*, std::uint32_t, const void*);
 using CancelResearchIsValidFn = bool (*)(const void*, void*);
 using IsResearchingTechnologyFn = bool (*)(const void*, const void*);
+using AccessTechnologyModuleFn = const void* (*)(const void*);
 using CStringCtorFn = void (*)(void*, const char*);
 using CStringDtorFn = void (*)(void*);
 using AccessTechnologyFn = const void* (*)(void*, const void*);
@@ -100,9 +101,20 @@ class StopResearchInvocation final : public ActionInvocation {
       const void* country,
       const void* technology) {
     const auto& bindings = game.profile().stop_research;
-    const void* technology_status =
-        static_cast<const unsigned char*>(country) +
-        bindings.technology_status_offset;
+    if (country == nullptr) {
+      return false;
+    }
+    const void* technology_status = nullptr;
+    if (bindings.access_technology_module != 0U) {
+      technology_status = game.FunctionAt<AccessTechnologyModuleFn>(
+          bindings.access_technology_module)(country);
+    } else if (bindings.technology_status_offset != 0U) {
+      technology_status = static_cast<const unsigned char*>(country) +
+                          bindings.technology_status_offset;
+    }
+    if (technology_status == nullptr) {
+      return false;
+    }
     return game.FunctionAt<IsResearchingTechnologyFn>(
         bindings.is_researching_technology)(technology_status, technology);
   }
@@ -123,7 +135,10 @@ std::unique_ptr<ActionInvocation> ParseStopResearch(
 
 bool StopResearchSupported(const BuildProfile& profile) noexcept {
   return profile.stop_research.command_size != 0U &&
-         profile.stop_research.command_is_valid != 0U;
+         profile.stop_research.command_is_valid != 0U &&
+         profile.stop_research.is_researching_technology != 0U &&
+         (profile.stop_research.access_technology_module != 0U ||
+          profile.stop_research.technology_status_offset != 0U);
 }
 
 constexpr std::array<ActionParameterDescriptor, 1> kParameters = {{

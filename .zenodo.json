@@ -1,6 +1,7 @@
 {
-  "title": "Imperial Auto Governor",
-  "description": "A save-driven Stellaris co-op agent platform with guarded carrier execution, an experimental session proxy, and explicit machine confirmation.",
+  "title": "OGAS",
+  "version": "0.6.0-alpha.1",
+  "description": "Specialist AI agents for persistent Stellaris empire governance, structured planning, brokered execution, and version-bound native Command recovery research. Source alpha; discovery and legality evidence are not execution verification.",
   "upload_type": "software",
   "license": "GPL-3.0-only",
   "creators": [
@@ -8,7 +9,7 @@
       "name": "Nostalgia"
     },
     {
-      "name": "Imperial Auto Governor contributors"
+      "name": "OGAS contributors"
     }
   ],
   "keywords": [
@@ -18,5 +19,5 @@
     "modding",
     "co-op automation"
   ],
-  "related_identifiers": []
+  "related_identifiers": [{"identifier": "https://github.com/V2t-Nostalgia/OGAS", "relation": "isSupplementTo", "scheme": "url"}]
 }

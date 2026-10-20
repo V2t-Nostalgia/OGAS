@@ -1,10 +1,16 @@
-# 平台架构
+# OGAS 平台架构
+
+`v0.6.0-alpha.1`：当前架构已加入 Execution Broker、Native Runtime、自动 SDK
+恢复与非提交式研究队列。4.4.6 的执行证据不自动迁移到 4.5.2；当前原生生产能力仍受
+精确版本准入限制。见 [当前验收](runtime/PRODUCER_VALIDATION_ACCEPTANCE_4_5_2.md)
+与[版本说明](releases/v0.6.0-alpha.1.md)。下列早期 Application 能力描述保留其
+v0.5.10 阶段背景，不是当前全部原生研究覆盖的清单。
 
 ## 1. 目标
 
 平台最终允许一个高能力主总管处理大战略与跨领域取舍，由多个较小的专业 Agent 分别管理经济、舰队、外交或其他领域。主总管不审批每一项廉价动作，而是在低频、高价值节点发布 Mandate、处理升级请求并纠正偏航。
 
-当前有稳定的 `economy_governance` Application，以及默认关闭的实验性 `fleet_operations` 和 `research_strategy` Application。跨星系 `d32c` 舰队移动已经完成真实会话闭环；星系内 `4f2c` 移动、`062d`/`4533` 科研选择、完整多区段 `fb2d` 舰船设计和 Fleet Manager 编制增援已完成存档建模、成对样本解析与离线构包，仍等待当前版本实机闭环后再提升稳定等级。外交等能力仍未实现。
+v0.5.10 基线具有 `economy_governance` Application，以及默认关闭的实验性 `fleet_operations` 和 `research_strategy` Application。跨星系 `d32c` 舰队移动已完成真实会话闭环；当时星系内 `4f2c` 移动、`062d`/`4533` 科研选择、完整多区段 `fb2d` 舰船设计和 Fleet Manager 编制增援以存档建模、成对样本解析与离线构包为主。后续外交、市场、治理等原生研究独立记载于 `docs/runtime/`，不得将这些发现视为全部 Application 已迁移或 4.5.2 已可执行。
 
 这三个 Application 已各自接入独立的持久模型 Agent。每个 Agent 只加载本领域的角色提示词和工具 schema，并使用独立 SQLite 会话历史。模型路由由玩家逐 Application 配置：可以独立选择模型池和逻辑模型，也可以显式沿用经济治理当前的模型路由与请求参数；后者不会合并角色提示词、工具、Application 设置或私有历史。网页端把每个 Application 呈现为独立联系人，其玩家消息、自主报告和工具摘要只写入所属聊天线程；跨领域信息只通过显式联合复盘和结构化执行账本协调。控制台以全局任务锁串行化它们的副作用；独立模型并不意味着可以同时改写同一条游戏会话。
 
@@ -59,12 +65,14 @@ Application manifest 只声明 semantic capability，不选择具体 backend。�
 见 [`EXECUTION_BROKER.md`](EXECUTION_BROKER.md)。
 
 Linux 4.4.6 另已从游戏原生 binary-persistence factory 恢复出共享的
-`CreateCommand(bytes) -> virtual IsValid -> PostCommandToSession` 路径，并从现有成对抓包 fixture
-自动生成 25 个 action adapter。它们当前只标记为 `paired_capture`：runtime manifest 可供诊断
-验收，但 Broker 不会把它们设为 Application 可执行 backend；既有三个实机验证 action 也不会
-被替换。每项只有在补齐语义 target resolver、实机后置条件和错误路径证据后才可单独晋级。
-精确函数地址、对象生命周期、生成校验和待验收范围见
-[`runtime/CAPTURE_BACKED_NATIVE_ACTIONS_4_4_6.md`](runtime/CAPTURE_BACKED_NATIVE_ACTIONS_4_4_6.md)。
+`CreateCommand(bytes) -> virtual IsValid -> PostCommandToSession` 路径。当前 profile 共公布 73 个
+action：3 个 `live_verified`，以及 70 个只用于诊断和验收的 `paired_capture` action。后者包括
+25 个从成对抓包 fixture 自动生成的 adapter、市场/事件/外交 action，以及已经类型化的政策、
+领袖、银河共同体、宣称、物种权利、局势和谍报命令。Broker 不会为 `paired_capture` 开启 native
+backend；每项只有在补齐实机后置条件、错误路径与存档延续证据后才可单独晋级。共享 factory
+细节见 [`runtime/CAPTURE_BACKED_NATIVE_ACTIONS_4_4_6.md`](runtime/CAPTURE_BACKED_NATIVE_ACTIONS_4_4_6.md)，
+完整参数目录、Broker 状态和验证步骤见
+[`runtime/NATIVE_RUNTIME_ACTION_CATALOG_4_4_6.md`](runtime/NATIVE_RUNTIME_ACTION_CATALOG_4_4_6.md)。
 
 单机观察者模式另有一个仍处于 research 阶段的权限域：Linux 4.4.6 实机已证明可以在
 `CCountryAI::PostAICommandsToSession()` 按 generation-bearing country ID 只替换一个被管理

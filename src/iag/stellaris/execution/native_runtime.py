@@ -18,16 +18,16 @@ import time
 from collections.abc import Mapping
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Final, Literal
+from typing import Annotated, Any, Final, Literal
 
 from pydantic import ConfigDict, Field, model_validator
 
 from iag.core.contracts import FrozenContract
 from iag.core.paths import project_root
 
-LINUX_NATIVE_RUNTIME_BUILD_ID: Final = "c6969e60fd81d738948222a94c0b5a0841abbffc"
+LINUX_NATIVE_RUNTIME_BUILD_ID: Final = "121ecb516cbc5f1d39917fbcc36620534384e2c2"
 WINDOWS_NATIVE_RUNTIME_BUILD_ID: Final = (
-    "stellaris-4.4.6-windows-steam-24109497-bc451c72"
+    "sha256:400df27c82ddc845aa9dce79bd468d81f18f060d299cd263e3afa93aef4f7a83"
 )
 # Compatibility name retained for fixtures written before platform profiles.
 NATIVE_RUNTIME_BUILD_ID: Final = LINUX_NATIVE_RUNTIME_BUILD_ID
@@ -38,6 +38,8 @@ DEFAULT_NATIVE_RUNTIME_SOCKET: Final = Path("/tmp/iag-stellaris-native.sock")
 DEFAULT_NATIVE_RUNTIME_PIPE: Final = r"\\.\pipe\iag-stellaris-native"
 _PROTOCOL_VERSION: Final = "IAG1"
 _DESCRIBE_ACTION: Final = "describe_tools"
+_INSPECT_OPEN_EVENTS_ACTION: Final = "inspect_open_events"
+_INSPECT_PENDING_DIPLOMATIC_ACTIONS_ACTION: Final = "inspect_pending_diplomatic_actions"
 _TOKEN_RE = re.compile(r"^[A-Za-z0-9_.:-]+$")
 _TECHNOLOGY_RE = re.compile(r"^[A-Za-z0-9_.-]+$")
 _MAX_RESPONSE_BYTES = 65_536
@@ -67,7 +69,9 @@ class NativeRuntimeParameter(FrozenContract):
     )
 
     name: str = Field(pattern=r"^[a-z][a-z0-9_]{1,63}$")
-    parameter_type: Literal["uint32", "string", "boolean"] = Field(alias="type")
+    parameter_type: Literal["uint32", "uint64", "string", "boolean"] = Field(
+        alias="type"
+    )
     required: bool
     description: str = Field(min_length=1, max_length=500)
     minimum: int | None = Field(default=None, ge=0)
@@ -76,17 +80,24 @@ class NativeRuntimeParameter(FrozenContract):
 
     @model_validator(mode="after")
     def validate_type_limits(self) -> NativeRuntimeParameter:
-        if self.parameter_type == "uint32":
+        if self.parameter_type in {"uint32", "uint64"}:
             if self.minimum is None or self.maximum is None:
-                raise ValueError("uint32 runtime parameters require numeric bounds.")
-            if self.maximum > 0xFFFFFFFF or self.minimum > self.maximum:
-                raise ValueError("Invalid uint32 runtime parameter bounds.")
+                raise ValueError(
+                    f"{self.parameter_type} runtime parameters require numeric bounds."
+                )
+            type_maximum = (
+                0xFFFFFFFF if self.parameter_type == "uint32" else 0xFFFFFFFFFFFFFFFF
+            )
+            if self.maximum > type_maximum or self.minimum > self.maximum:
+                raise ValueError(
+                    f"Invalid {self.parameter_type} runtime parameter bounds."
+                )
         elif self.parameter_type == "string" and self.maximum_length is None:
             raise ValueError("String runtime parameters require maximum_length.")
         return self
 
     def encode(self, value: object) -> str:
-        if self.parameter_type == "uint32":
+        if self.parameter_type in {"uint32", "uint64"}:
             if isinstance(value, bool) or not isinstance(value, int):
                 raise NativeRuntimeError(f"{self.name} must be an integer.")
             minimum = int(self.minimum or 0)
@@ -113,16 +124,17 @@ class NativeRuntimeTool(FrozenContract):
 
     action_type: str = Field(pattern=r"^[a-z][a-z0-9_]{1,63}$")
     action_version: int = Field(ge=1)
-    application_id: str = Field(
-        default="etc", pattern=r"^[a-z][a-z0-9_]{1,63}$"
-    )
+    application_id: str = Field(default="etc", pattern=r"^[a-z][a-z0-9_]{1,63}$")
     description: str = Field(min_length=1, max_length=500)
     risk_class: Literal[
         "state_change",
         "destructive_state_change",
+        "irreversible_state_change",
         "state_change_requires_fresh_save",
     ]
-    verification_state: Literal["live_verified", "paired_capture"]
+    verification_state: Literal[
+        "live_verified", "build_validation_pending", "paired_capture"
+    ]
     parameters: tuple[NativeRuntimeParameter, ...]
 
     @model_validator(mode="after")
@@ -159,7 +171,10 @@ class NativeRuntimeManifest(FrozenContract):
 
     def get(self, action_type: str, action_version: int = 1) -> NativeRuntimeTool:
         for tool in self.tools:
-            if tool.action_type == action_type and tool.action_version == action_version:
+            if (
+                tool.action_type == action_type
+                and tool.action_version == action_version
+            ):
                 return tool
         raise KeyError(f"Runtime does not expose {action_type}.v{action_version}.")
 
@@ -182,6 +197,193 @@ class NativeRuntimeResponse(FrozenContract):
         """Compatibility view for the original research-only runtime client."""
 
         return self.target_echo if self.action == "stop_research" else None
+
+
+class NativeOpenEventOption(FrozenContract):
+    """One option currently legal for a native open event."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    option_index: int = Field(ge=0, le=63)
+    text_key: str = Field(max_length=512)
+
+
+class NativeRecoveredCommandCatalog(FrozenContract):
+    """Research-only SDK directory; deliberately not a Broker tool manifest."""
+
+    schema_version: Literal["iag.recovered_command_catalog.v1"]
+    build_id: str
+    process_id: int = Field(gt=0)
+    instance_id: int = Field(gt=0)
+    probe_revision: int = Field(default=1, ge=1)
+    commands: tuple[str, ...]
+    native_candidate_commands: tuple[str, ...] = ()
+    sdk_fingerprint: str = ""
+
+
+class NativeProbeBinding(FrozenContract):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    field: str
+    storage_kind: Literal[
+        "ref",
+        "u32",
+        "bool",
+        "i32",
+        "i64",
+        "string",
+        "definition_pointer",
+        "reference_array",
+        "game_date32",
+        "native_text_value",
+    ]
+    reference_type: str
+    value: int = Field(ge=-(1 << 63), le=(1 << 63) - 1)
+    text_value: str = Field(default="", max_length=512)
+    reference_ids: tuple[Annotated[int, Field(ge=0, le=0xFFFFFFFF)], ...] = Field(
+        default=(), max_length=16
+    )
+
+    @model_validator(mode="after")
+    def check_storage_range(self) -> NativeProbeBinding:
+        # Existing i32 reports carry uint32 bit patterns; only i64 is signed.
+        if self.storage_kind != "i64" and not 0 <= self.value <= 0xFFFFFFFF:
+            raise ValueError("Non-i64 probe values require an unsigned 32-bit representation.")
+        return self
+
+
+class NativeCommandValidation(FrozenContract):
+    """Construction/legality evidence, never execution or live_verified evidence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["iag.native_command_validation.v2"]
+    command_name: str
+    class_name: str
+    build_id: str
+    status: Literal[
+        "native_valid",
+        "native_invalid",
+        "structure_failed",
+        "call_exception",
+        "missing_parameters",
+        "not_tested",
+    ]
+    reason: str
+    country_id: int | None = Field(ge=0, le=0xFFFFFFFF)
+    world_identity: int = Field(default=0, ge=0)
+    candidate_index: int = Field(ge=0, le=15)
+    candidate_count: int = Field(ge=0, le=16)
+    candidate_scan_truncated: bool
+    scoped_lookup_calls: int = Field(default=0, ge=0, le=256)
+    candidate_source: Literal["legacy_bounded", "native_domain", "constraint_plan"] = "legacy_bounded"
+    parameter_source: str = Field(default="legacy_independent_pools", max_length=96)
+    candidate_identity: str = Field(default="", max_length=1024)
+    domain_query_calls: int = Field(default=0, ge=0, le=64)
+    native_rule_valid: bool | None = None
+    structure_checked: bool
+    constructed_from_generated_metadata: bool
+    native_is_valid: bool | None
+    native_reason: str = Field(default="", max_length=4096)
+    validator_kind: Literal["native_predicate", "context_free_constant", "unknown"] = (
+        "unknown"
+    )
+    parameters_populated: bool | None = None
+    factory_rva: int = Field(ge=0)
+    vtable_rva: int = Field(ge=0)
+    object_size: int = Field(ge=0, le=1024 * 1024)
+    submitted: Literal[False]
+    execution_verified: Literal[False]
+    destroyed: bool
+    run_game_update: bool
+    fixture_paused: bool | None = None
+    game_date_before: int | None = Field(default=None, ge=0)
+    game_date_after: int | None = Field(default=None, ge=0)
+    elapsed_us: int = Field(ge=0)
+    create_us: int = Field(ge=0)
+    populate_us: int = Field(ge=0)
+    validate_us: int = Field(ge=0)
+    destroy_us: int = Field(ge=0)
+    bindings: tuple[NativeProbeBinding, ...]
+
+    @model_validator(mode="after")
+    def check_evidence(self) -> NativeCommandValidation:
+        if (
+            self.parameters_populated is True
+            and not self.constructed_from_generated_metadata
+        ):
+            raise ValueError("Population claimed without native construction.")
+        if (
+            self.constructed_from_generated_metadata
+            and not self.destroyed
+            and self.status != "call_exception"
+        ):
+            raise ValueError("Incomplete native object destruction evidence.")
+        if self.status in {"native_valid", "native_invalid"}:
+            if self.candidate_source in {"native_domain", "constraint_plan"} and not self.candidate_identity:
+                raise ValueError(
+                    "Native domain validation lacks correlated input identity."
+                )
+            if not (
+                self.structure_checked
+                and self.constructed_from_generated_metadata
+                and self.destroyed
+                and self.native_is_valid is (self.status == "native_valid")
+                and self.parameters_populated is not False
+            ):
+                raise ValueError("Incomplete native validation lifecycle evidence.")
+        elif self.native_is_valid is not None:
+            raise ValueError("Non-validation result claims native legality.")
+        return self
+
+
+class NativeOpenEvent(FrozenContract):
+    """Stable, non-RNG-mutating view of one event awaiting a response."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    open_event_id: int = Field(ge=0, le=0xFFFFFFFF)
+    event_definition_id: int = Field(ge=0, le=0xFFFFFFFF)
+    title_key: str = Field(max_length=512)
+    description_state: Literal["dynamic_unrendered"]
+    options_truncated: bool
+    options: tuple[NativeOpenEventOption, ...]
+
+
+class NativeOpenEventState(FrozenContract):
+    """Read-only event candidates for one country from the current game state."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["iag.open_event_state.v1"]
+    country_id: int = Field(ge=0, le=0xFFFFFFFF)
+    content_mode: Literal["stable_keys_no_rng"]
+    truncated: bool
+    events: tuple[NativeOpenEvent, ...]
+
+
+class NativePendingDiplomaticAction(FrozenContract):
+    """One currently pending diplomatic action and its legal responses."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    pending_action_id: int = Field(ge=1, le=0xFFFFFFFFFFFFFFFF)
+    action_tag: str = Field(min_length=1, max_length=512)
+    actor_country_id: int = Field(ge=0, le=0xFFFFFFFF)
+    recipient_country_id: int = Field(ge=0, le=0xFFFFFFFF)
+    can_accept: bool
+    can_reject: bool
+
+
+class NativePendingDiplomaticActionState(FrozenContract):
+    """Read-only response candidates for one country's diplomatic inbox."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["iag.pending_diplomatic_action_state.v1"]
+    country_id: int = Field(ge=0, le=0xFFFFFFFF)
+    truncated: bool
+    actions: tuple[NativePendingDiplomaticAction, ...]
 
 
 def _require_token(value: str, *, maximum: int, label: str) -> str:
@@ -214,8 +416,7 @@ class NativeRuntimeClient:
         self.timeout_seconds = max(1.0, min(float(timeout_seconds), 60.0))
         native_root = project_root() / "native_runtime"
         self.loader_path = Path(
-            loader_path
-            or native_root / "iag_stellaris_native_runtime_loader.exe"
+            loader_path or native_root / "iag_stellaris_native_runtime_loader.exe"
         )
         self.library_path = Path(
             library_path or native_root / "iag_stellaris_native_runtime.dll"
@@ -293,10 +494,10 @@ class NativeRuntimeClient:
         if len(payload) > _MAX_RESPONSE_BYTES:
             raise NativeRuntimeError("Native runtime response exceeded its size limit.")
         try:
-            return payload[:-1].decode("ascii")
+            return payload[:-1].decode("utf-8")
         except UnicodeDecodeError as error:
             raise NativeRuntimeError(
-                "Native runtime response was not ASCII."
+                "Native runtime response was not valid UTF-8."
             ) from error
 
     def _exchange(self, request: bytes) -> str:
@@ -313,7 +514,7 @@ class NativeRuntimeClient:
                 ) from error
         if os.name == "nt":
             try:
-                with open(self.endpoint, "r+b", buffering=0) as pipe:  # noqa: PTH123
+                with open(self.endpoint, "r+b", buffering=0) as pipe:
                     pipe.write(request)
                     payload = bytearray()
                     while len(payload) <= _MAX_RESPONSE_BYTES:
@@ -431,6 +632,248 @@ class NativeRuntimeClient:
             self._manifest = manifest
             return manifest
 
+    def inspect_open_events(
+        self,
+        *,
+        request_id: str,
+        country_id: int,
+    ) -> NativeOpenEventState:
+        """Read stable event/option keys without evaluating dynamic game text."""
+
+        request_id = _require_token(str(request_id), maximum=96, label="request id")
+        if country_id < 0 or country_id > 0xFFFFFFFF:
+            raise NativeRuntimeError("Invalid country id for native runtime protocol.")
+        response = self._request(
+            request_id=request_id,
+            action=_INSPECT_OPEN_EVENTS_ACTION,
+            country_id=country_id,
+            target_fields=(),
+        )
+        if response.outcome != NativeRuntimeOutcome.CONFIRMED:
+            raise NativeRuntimeError(
+                f"Open-event state query failed: {response.detail}"
+            )
+        try:
+            state = NativeOpenEventState.model_validate_json(response.target_echo)
+        except (ValueError, TypeError, json.JSONDecodeError) as error:
+            raise NativeRuntimeError(
+                "Native runtime returned invalid open-event state."
+            ) from error
+        if state.country_id != country_id:
+            raise NativeRuntimeError(
+                "Native open-event state belongs to a different country."
+            )
+        return state
+
+    def describe_recovered_commands(
+        self, *, request_id: str
+    ) -> NativeRecoveredCommandCatalog:
+        request_id = _require_token(request_id, maximum=96, label="request id")
+        response = self._request(
+            request_id=request_id,
+            action="describe_recovered_commands",
+            country_id=0,
+            target_fields=(),
+        )
+        if response.outcome != NativeRuntimeOutcome.CONFIRMED:
+            raise NativeRuntimeError(
+                f"Recovered catalog query failed: {response.detail}"
+            )
+        try:
+            catalog = NativeRecoveredCommandCatalog.model_validate_json(
+                response.target_echo
+            )
+        except (ValueError, TypeError) as error:
+            raise NativeRuntimeError("Invalid recovered command catalog.") from error
+        if catalog.build_id != response.build_id:
+            raise NativeRuntimeError("Recovered catalog build identity changed.")
+        return catalog
+
+    def validate_recovered_command(
+        self,
+        *,
+        request_id: str,
+        command_name: str,
+        country_id: int | None = None,
+        leader_id: int | None = None,
+        candidate_index: int = 0,
+        candidate_source: Literal["legacy_bounded", "native_domain"] = "legacy_bounded",
+    ) -> NativeCommandValidation:
+        """One automatically selected, typed candidate on the existing game-thread lane.
+
+        No loader, submission, execution, raw pointer or arbitrary field write is
+        exposed. Numeric/enum semantics and unresolved object types are skipped.
+        """
+        request_id = _require_token(request_id, maximum=96, label="request id")
+        command_name = _require_token(command_name, maximum=96, label="command name")
+        for value in (country_id, leader_id):
+            if value is not None and (
+                isinstance(value, bool)
+                or not isinstance(value, int)
+                or not 0 <= value < 0xFFFFFFFF
+            ):
+                raise NativeRuntimeError("Invalid research probe object id.")
+        if type(candidate_index) is not int or not 0 <= candidate_index < 16:
+            raise NativeRuntimeError("Invalid research candidate index.")
+        if candidate_source not in {"legacy_bounded", "native_domain"} or (
+            candidate_source == "native_domain" and leader_id is not None
+        ):
+            raise NativeRuntimeError("Invalid correlated candidate source or override.")
+        response = self._request(
+            request_id=request_id,
+            action="validate_recovered_command",
+            country_id=0xFFFFFFFF if country_id is None else country_id,
+            target_fields=(
+                command_name,
+                "auto" if leader_id is None else str(leader_id),
+                str(candidate_index),
+            )
+            + (("native_domain",) if candidate_source == "native_domain" else ()),
+        )
+        if response.outcome != NativeRuntimeOutcome.CONFIRMED:
+            raise NativeRuntimeError(
+                f"Generated command validation failed: {response.detail}"
+            )
+        try:
+            result = NativeCommandValidation.model_validate_json(response.target_echo)
+        except (ValueError, TypeError) as error:
+            raise NativeRuntimeError(
+                "Invalid generated command validation result."
+            ) from error
+        if (
+            result.command_name != command_name
+            or result.build_id != response.build_id
+            or result.candidate_index != candidate_index
+            or result.candidate_source != candidate_source
+            or (country_id is not None and result.country_id not in (country_id, None))
+        ):
+            raise NativeRuntimeError("Generated command validation target mismatch.")
+        if leader_id is not None and result.constructed_from_generated_metadata:
+            selected = [b for b in result.bindings if b.reference_type == "CLeader"]
+            if not selected or any(b.value != leader_id for b in selected):
+                raise NativeRuntimeError(
+                    "Generated command validation target mismatch."
+                )
+        return result
+
+    def validate_constraint_candidate(
+        self,
+        *,
+        request_id: str,
+        command_name: str,
+        catalog: NativeRecoveredCommandCatalog,
+        expected_world: int,
+        expected_date: int,
+        candidate_identity: str,
+        bindings: tuple[NativeProbeBinding, ...],
+        country_id: int | None = None,
+    ) -> NativeCommandValidation:
+        """Private research lane: generated typed bindings, never submission.
+
+        Does not attach/inject, reload, or unpause. The active SDK rechecks every
+        field, enum domain, generation-bearing ref and lifecycle on CGameIdler.
+        A matching date/world does not prove complete save-state equivalence.
+        """
+        _require_token(request_id, maximum=96, label="request id")
+        _require_token(command_name, maximum=96, label="command name")
+        if (
+            catalog.probe_revision < 6
+            or command_name not in catalog.commands
+            or not re.fullmatch(r"[0-9a-f]{64}", catalog.sdk_fingerprint)
+            or not re.fullmatch(r"[0-9a-f]{64}", candidate_identity)
+            or type(expected_world) is not int or not 0 < expected_world <= 0xFFFFFFFFFFFFFFFF
+            or type(expected_date) is not int or not 0 <= expected_date <= 0xFFFFFFFF
+            or (country_id is not None and (type(country_id) is not int or not 0 <= country_id < 0xFFFFFFFF))
+            or not 1 <= len(bindings) <= 32
+            or len({b.field for b in bindings}) != len(bindings)
+        ):
+            raise NativeRuntimeError("Invalid or unsupported constraint-plan context.")
+        encoded = []
+        for binding in bindings:
+            _require_token(binding.field, maximum=96, label="recovered field")
+            kind = binding.storage_kind
+            if kind not in {"ref", "i32", "i64", "u32", "bool", "definition_pointer"} or binding.reference_ids:
+                raise NativeRuntimeError("Unsupported constraint-plan field kind.")
+            if kind == "i64" and catalog.probe_revision < 7:
+                raise NativeRuntimeError("Signed i64 constraint bindings require probe revision 7.")
+            if kind == "definition_pointer":
+                value = _require_token(binding.text_value, maximum=128, label="definition key")
+            else:
+                if binding.text_value or (kind == "ref" and binding.value == 0xFFFFFFFF) or (kind == "bool" and binding.value > 1):
+                    raise NativeRuntimeError("Invalid constraint-plan field value.")
+                value = str(binding.value - 0x100000000 if kind == "i32" and binding.value > 0x7FFFFFFF else binding.value)
+            encoded.append(f"{binding.field}~{kind}~{value}")
+        document = "|".join(encoded)
+        if len(document) > 8192:
+            raise NativeRuntimeError("Constraint-plan binding document exceeds limit.")
+        response = self._request(
+            request_id=request_id, action="validate_recovered_command",
+            country_id=0xFFFFFFFF if country_id is None else country_id,
+            target_fields=(command_name, "auto", "0", "constraint_plan", str(expected_world), str(expected_date),
+                           candidate_identity, catalog.sdk_fingerprint, document, str(catalog.instance_id)),
+        )
+        if response.outcome != NativeRuntimeOutcome.CONFIRMED:
+            raise NativeRuntimeError(f"Constraint-plan validation failed: {response.detail}")
+        try:
+            result = NativeCommandValidation.model_validate_json(response.target_echo)
+        except (ValueError, TypeError) as error:
+            raise NativeRuntimeError("Invalid constraint-plan validation result.") from error
+        if (response.build_id != catalog.build_id or result.build_id != catalog.build_id
+                or result.command_name != command_name or result.candidate_source != "constraint_plan"
+                or result.candidate_identity != candidate_identity):
+            raise NativeRuntimeError("Constraint-plan identity changed.")
+        if result.native_is_valid is not None:
+            if (result.world_identity != expected_world or result.game_date_before != expected_date
+                    or result.game_date_after != expected_date or result.fixture_paused is not True
+                    or result.bindings != bindings):
+                raise NativeRuntimeError("Constraint-plan state or populated bindings changed.")
+        return result
+
+    def probe_hire_leader(
+        self, *, request_id: str, country_id: int, leader_id: int
+    ) -> NativeCommandValidation:
+        return self.validate_recovered_command(
+            request_id=request_id,
+            command_name="hire_leader",
+            country_id=country_id,
+            leader_id=leader_id,
+        )
+
+    def inspect_pending_diplomatic_actions(
+        self,
+        *,
+        request_id: str,
+        country_id: int,
+    ) -> NativePendingDiplomaticActionState:
+        """Read pending diplomacy IDs and responses without changing game state."""
+
+        request_id = _require_token(str(request_id), maximum=96, label="request id")
+        if country_id < 0 or country_id > 0xFFFFFFFF:
+            raise NativeRuntimeError("Invalid country id for native runtime protocol.")
+        response = self._request(
+            request_id=request_id,
+            action=_INSPECT_PENDING_DIPLOMATIC_ACTIONS_ACTION,
+            country_id=country_id,
+            target_fields=(),
+        )
+        if response.outcome != NativeRuntimeOutcome.CONFIRMED:
+            raise NativeRuntimeError(
+                f"Pending-diplomacy state query failed: {response.detail}"
+            )
+        try:
+            state = NativePendingDiplomaticActionState.model_validate_json(
+                response.target_echo
+            )
+        except (ValueError, TypeError, json.JSONDecodeError) as error:
+            raise NativeRuntimeError(
+                "Native runtime returned invalid pending-diplomacy state."
+            ) from error
+        if state.country_id != country_id:
+            raise NativeRuntimeError(
+                "Native pending-diplomacy state belongs to a different country."
+            )
+        return state
+
     def execute(
         self,
         *,
@@ -443,9 +886,7 @@ class NativeRuntimeClient:
         """Encode one reviewed semantic target using runtime-declared ordering."""
 
         request_id = _require_token(str(request_id), maximum=96, label="request id")
-        action_type = _require_token(
-            str(action_type), maximum=64, label="action type"
-        )
+        action_type = _require_token(str(action_type), maximum=64, label="action type")
         if country_id < 0 or country_id > 0xFFFFFFFF:
             raise NativeRuntimeError("Invalid country id for native runtime protocol.")
         try:

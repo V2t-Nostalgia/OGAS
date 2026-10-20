@@ -15,15 +15,18 @@
 | `AUTHORS.md` | 仓库级配置、许可证或治理文件。 | 项目说明、设计依据或历史参考文档。 | - | `AUTHORS.md` |
 | `CITATION.cff` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `CITATION.cff` |
 | `CONTRIBUTING.md` | 仓库级配置、许可证或治理文件。 | 项目说明、设计依据或历史参考文档。 | - | `CONTRIBUTING.md` |
+| `CONTRIBUTING.zh-CN.md` | 仓库级配置、许可证或治理文件。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `DCO` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `DCO` |
 | `DEDICATION.md` | 仓库级配置、许可证或治理文件。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `LICENSE` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `LICENSE` |
 | `LICENSES/CC-BY-SA-4.0.txt` | 代码与文档许可证全文。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `LICENSES/CC-BY-SA-4.0.txt` |
 | `LICENSES/GPL-3.0-only.txt` | 代码与文档许可证全文。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `LICENSES/GPL-3.0-only.txt` |
+| `LICENSES/MIT.txt` | 代码与文档许可证全文。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `MIGRATION_MANIFEST.json` | 仓库级配置、许可证或治理文件。 | 记录旧仓库固定提交到新路径的初始复制映射与哈希。 | - | `新工程文件` |
 | `NOTICE` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `NOTICE` |
 | `ORIGIN.md` | 仓库级配置、许可证或治理文件。 | 项目说明、设计依据或历史参考文档。 | - | `ORIGIN.md` |
 | `README.md` | 仓库级配置、许可证或治理文件。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
+| `README.zh-CN.md` | 仓库级配置、许可证或治理文件。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `REUSE.toml` | 仓库级配置、许可证或治理文件。 | 版本化 manifest 或 Python 构建配置。 | - | `REUSE.toml` |
 | `SECURITY.md` | 仓库级配置、许可证或治理文件。 | 项目说明、设计依据或历史参考文档。 | - | `SECURITY.md` |
 | `TRADEMARKS.md` | 仓库级配置、许可证或治理文件。 | 项目说明、设计依据或历史参考文档。 | - | `TRADEMARKS.md` |
@@ -44,30 +47,29 @@
 | `apps/control_center/tests/test_visible_reply_stream.py` | Agent 控制面与 Windows 启动入口。 | Tests for the redacted game-overlay event boundary. | `VisibleReplyBrokerTests`, `OverlayTranscriptTests` | `新工程文件` |
 | `apps/control_center/tests/test_windows_agent_bundle_resources.py` | Agent 控制面与 Windows 启动入口。 | Python 模块；详细职责见邻接 README。 | `WindowsAgentBundleResourceTests` | `新工程文件` |
 | `apps/control_center/visible_reply_stream.py` | Agent 控制面与 Windows 启动入口。 | 维护只含玩家输入与模型可见正文的有界事件流。 | - | `新工程文件` |
-| `apps/control_center/web/app.js` | 灰风控制台的浏览器端界面资源。 | 控制台浏览器端交互、状态渲染或 API 调用逻辑。 | - | `tools/agent_runtime/web/app.js` |
-| `apps/control_center/web/app_v2.js` | 灰风控制台的浏览器端界面资源。 | 控制台浏览器端交互、状态渲染或 API 调用逻辑。 | - | `tools/agent_runtime/web/app_v2.js` |
-| `apps/control_center/web/construction.css` | 灰风控制台的浏览器端界面资源。 | 控制台视觉布局和主题样式。 | - | `tools/agent_runtime/web/construction.css` |
-| `apps/control_center/web/conversation.css` | 灰风控制台的浏览器端界面资源。 | 控制台视觉布局和主题样式。 | - | `tools/agent_runtime/web/conversation.css` |
-| `apps/control_center/web/index.html` | 灰风控制台的浏览器端界面资源。 | 控制台页面结构和静态资源入口。 | - | `tools/agent_runtime/web/index.html` |
-| `apps/control_center/web/styles.css` | 灰风控制台的浏览器端界面资源。 | 控制台视觉布局和主题样式。 | - | `tools/agent_runtime/web/styles.css` |
+| `apps/control_center/web/app.js` | OGAS 控制台的浏览器端界面资源。 | 控制台浏览器端交互、状态渲染或 API 调用逻辑。 | - | `tools/agent_runtime/web/app.js` |
+| `apps/control_center/web/app_v2.js` | OGAS 控制台的浏览器端界面资源。 | 控制台浏览器端交互、状态渲染或 API 调用逻辑。 | - | `tools/agent_runtime/web/app_v2.js` |
+| `apps/control_center/web/construction.css` | OGAS 控制台的浏览器端界面资源。 | 控制台视觉布局和主题样式。 | - | `tools/agent_runtime/web/construction.css` |
+| `apps/control_center/web/conversation.css` | OGAS 控制台的浏览器端界面资源。 | 控制台视觉布局和主题样式。 | - | `tools/agent_runtime/web/conversation.css` |
+| `apps/control_center/web/index.html` | OGAS 控制台的浏览器端界面资源。 | 控制台页面结构和静态资源入口。 | - | `tools/agent_runtime/web/index.html` |
+| `apps/control_center/web/styles.css` | OGAS 控制台的浏览器端界面资源。 | 控制台视觉布局和主题样式。 | - | `tools/agent_runtime/web/styles.css` |
 | `apps/control_center/web_console.py` | Agent 控制面与 Windows 启动入口。 | 战役会话、模型配置、巡检、研究和执行状态的 HTTPS 控制面。 | - | `tools/agent_runtime/web_console.py` |
 | `apps/control_center/windows_agent_gui.py` | Agent 控制面与 Windows 启动入口。 | Windows Agent 一键启动、运行目录、证书和健康检查界面。 | - | `tools/agent_runtime/windows_agent_gui.py` |
 | `apps/game_overlay/DISPLAY_TEST_README.md` | 房主侧透明游戏会话叠加层。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `apps/game_overlay/IAGOverlay.spec` | 房主侧透明游戏会话叠加层。 | PyInstaller 构建图；收集 monorepo 包、资源与平台二进制。 | - | `新工程文件` |
 | `apps/game_overlay/IAGOverlayDisplayTest.spec` | 房主侧透明游戏会话叠加层。 | PyInstaller 构建图；收集 monorepo 包、资源与平台二进制。 | - | `新工程文件` |
 | `apps/game_overlay/README.md` | 房主侧透明游戏会话叠加层。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
-| `apps/game_overlay/__init__.py` | 房主侧透明游戏会话叠加层。 | Transparent in-game conversation overlay for Imperial Auto Governor. | - | `新工程文件` |
+| `apps/game_overlay/__init__.py` | 房主侧透明游戏会话叠加层。 | Transparent in-game conversation overlay for OGAS. | - | `新工程文件` |
 | `apps/game_overlay/display_test_main.py` | 房主侧透明游戏会话叠加层。 | Entrypoint for the local-only IAG overlay display test executable. | `parse_args`, `main` | `新工程文件` |
 | `apps/game_overlay/display_test_window.py` | 房主侧透明游戏会话叠加层。 | Local-only overlay window used to test presentation without an Agent. | `chunk_visible_text`, `DisplayTestWindow` | `新工程文件` |
 | `apps/game_overlay/hotkey.py` | 房主侧透明游戏会话叠加层。 | Configurable Windows global hotkey parsing and registration. | `HotkeySpec`, `parse_hotkey`, `WindowsHotkeyListener` | `新工程文件` |
-| `apps/game_overlay/main.py` | 房主侧透明游戏会话叠加层。 | Entrypoint for the standalone Imperial Auto Governor game overlay. | `resource_root`, `parse_args`, `preview_configuration`, `main` | `新工程文件` |
+| `apps/game_overlay/main.py` | 房主侧透明游戏会话叠加层。 | Entrypoint for the standalone OGAS game overlay. | `resource_root`, `parse_args`, `preview_configuration`, `main` | `新工程文件` |
 | `apps/game_overlay/overlay_config.py` | 房主侧透明游戏会话叠加层。 | Load and persist the game overlay portion of the Host Bridge config. | `OverlayGeometry`, `OverlayConnection`, `OverlaySettings`, `OverlayConfiguration`, `ensure_analysis_phrase_file`, `load_analysis_phrases`, `bundled_font_file`, `load_overlay_configuration` | `新工程文件` |
 | `apps/game_overlay/resources/analysis_phrases_zh.txt` | 房主侧透明游戏会话叠加层。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `apps/game_overlay/resources/fonts/fusion_pixel/LICENSES/ark-pixel/OFL.txt` | 房主侧透明游戏会话叠加层。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `apps/game_overlay/resources/fonts/fusion_pixel/LICENSES/cubic-11/OFL.txt` | 房主侧透明游戏会话叠加层。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `apps/game_overlay/resources/fonts/fusion_pixel/LICENSES/galmuri/LICENSE.txt` | 房主侧透明游戏会话叠加层。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `apps/game_overlay/resources/fonts/fusion_pixel/OFL.txt` | 房主侧透明游戏会话叠加层。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
-| `apps/game_overlay/resources/fonts/fusion_pixel/fusion-pixel-12px-monospaced-zh_hans.ttf` | 房主侧透明游戏会话叠加层。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `apps/game_overlay/tests/test_display_test.py` | 房主侧透明游戏会话叠加层。 | Local display-test mode must remain independent from Agent authentication. | `DisplayTestConfigurationTests` | `新工程文件` |
 | `apps/game_overlay/tests/test_hotkey.py` | 房主侧透明游戏会话叠加层。 | Pure hotkey parser tests; no global registration is performed. | `HotkeyParserTests` | `新工程文件` |
 | `apps/game_overlay/tests/test_transport.py` | 房主侧透明游戏会话叠加层。 | SSE parser tests for the standalone overlay transport. | `SSEParserTests` | `新工程文件` |
@@ -90,6 +92,7 @@
 | `content_packs/vanilla_4_4/tests/README.md` | 游戏或 Mod 内容到平台既有概念的声明式映射。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
 | `docs/ARCHITECTURE.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/DEVELOPMENT.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/DEVELOPMENT.zh-CN.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/EXECUTION_BROKER.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/FLEET_OPERATIONS.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/MIGRATION.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
@@ -126,13 +129,55 @@
 | `docs/reference/v0_5_8/WINDOWS_FULL_DEPLOYMENT.md` | 迁移基线 v0.5.8 的原始操作与研究记录。 | 项目说明、设计依据或历史参考文档。 | - | `docs/WINDOWS_FULL_DEPLOYMENT.md` |
 | `docs/releases/v0.5.10.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/releases/v0.5.9.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/releases/v0.6.0-alpha.1.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/research/EVIDENCE_ARCHIVE.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/research/EVIDENCE_PUBLICATION.json` | 平台架构、开发和迁移文档。 | 结构化配置、schema 或声明式映射；运行时按 JSON 校验。 | - | `新工程文件` |
+| `docs/runtime/AI_MEGASTRUCTURE_HOTSPOT_INVESTIGATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/ASCENSION_PERK_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/BORDER_DIPLOMACY_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/CAPTURE_BACKED_NATIVE_ACTIONS_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/COMMAND_SEMANTIC_TECHNICAL_AUDIT_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/COORDINATE_VALUE_REUSE_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/COUNCIL_POSITION_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/DIPLOMACY_WAR_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/DIPLOMATIC_PROPOSAL_ACTIONS_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/EDICT_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/EMPIRE_POLICY_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/ESPIONAGE_OPERATION_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/EVENT_SITUATION_DISCOVERY_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/runtime/FLEET_CONTROL_CAPTURE_PLAN.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/runtime/FLEET_MOVEMENT_NATIVE_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/GALACTIC_COMMUNITY_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/runtime/HUMAN_AI_COMMAND_DISCOVERY_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/LEADER_ASSIGNMENT_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/LIVE_VALIDATION_PROGRESS_2026_10_18.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/LONG_RUNNING_AI_COMMAND_CAPTURE_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/MARKET_EVENT_WAR_COMMANDS_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/MOD_NATIVE_HOOK_COMPATIBILITY_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/NATIVE_COMMAND_PRODUCER_DISCOVERY_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/runtime/NATIVE_FLEET_ATTACK_HOOK_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/runtime/NATIVE_FLEET_MOVE_HOOK_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/runtime/NATIVE_RESEARCH_HOOK_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/NATIVE_RUNTIME_4_5_2_STATIC_MIGRATION.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/NATIVE_RUNTIME_ACTION_CATALOG_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `docs/runtime/NATIVE_RUNTIME_ACTION_CONTRIBUTING.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/OBSERVER_AI_COUNTRY_TAKEOVER_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/OBSERVE_PERFORMANCE_MOD_ANALYSIS.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/PRODUCER_VALIDATION_ACCEPTANCE_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/PRODUCER_VALIDATION_WINDOW_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SCRIPT_NATIVE_CONSTRAINT_PIPELINE_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SDK_BATCH_VALIDATION_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SDK_COMMAND_RECOVERY_EXPANSION_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SDK_COUNTRY_SCOPED_IDS_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SDK_INCREMENTAL_VALIDATION_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SDK_MONTHLY_TRADE_IDENTITY_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SDK_NESTED_VALUE_RECOVERY_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SDK_RECOVERY_4_5_2.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SITUATION_APPROACH_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/SPECIES_RIGHTS_NEGATIVE_VALIDATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/STATE_DIPLOMACY_COMMAND_COVERAGE_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/STELLARIS_MCP_TECHNICAL_COMPARISON_2026_10_18.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `docs/runtime/TRADITION_AGENDA_LIVE_VERIFICATION_4_4_6.md` | 平台架构、开发和迁移文档。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
 | `pyproject.toml` | 仓库级配置、许可证或治理文件。 | 版本化 manifest 或 Python 构建配置。 | - | `新工程文件` |
 | `requirements.txt` | 仓库级配置、许可证或治理文件。 | Python 3.11+ 统一依赖；Windows/Linux 抓包依赖用环境标记隔离。 | - | `新工程文件` |
 | `scripts/README.md` | 仓库级配置、许可证或治理文件。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
@@ -147,13 +192,19 @@
 | `scripts/deploy/systemd/iag-agent-network-observer.service` | Ubuntu 虚拟环境、控制台和 systemd 部署。 | systemd 服务模板；安装时替换项目、运行目录和用户占位符。 | - | `tools/agent_runtime/deploy/systemd/iag-agent-network-observer.service` |
 | `scripts/diagnostics/Export-IAGPlanetProfiles.ps1` | 只读诊断，以及需显式授权的协议兼容性验收工具。 | Windows PowerShell 操作、构建或诊断入口。 | - | `tools/save_state/Export-IAGPlanetProfiles.ps1` |
 | `scripts/diagnostics/iag_udp_flow_analyzer.py` | 只读诊断，以及需显式授权的协议兼容性验收工具。 | Summarize passive UDP flow traces produced by iag_packet_interceptor.py. | `parse_endpoint`, `parse_args`, `main` | `tools/packet_interceptor/iag_udp_flow_analyzer.py` |
+| `scripts/diagnostics/run_native_capture_batch.py` | 只读诊断，以及需显式授权的协议兼容性验收工具。 | Dry-run or execute an explicitly approved native capture-action batch. | `read_plan`, `write_report`, `main` | `新工程文件` |
 | `scripts/diagnostics/run_protocol_compatibility_suite.py` | 只读诊断，以及需显式授权的协议兼容性验收工具。 | 先离线构包，再在明确授权的可丢弃房间中逐项验证已登记协议命令。 | - | `新工程文件` |
 | `scripts/migration/finalize_engineering_manifest.py` | 可审计迁移、哈希与代码地图维护工具。 | Finalize privacy-safe migration and engineering manifests. | `sha256`, `normalize_migration`, `maintained_files`, `main` | `新工程文件` |
 | `scripts/migration/generate_code_map.py` | 可审计迁移、哈希与代码地图维护工具。 | Generate a Chinese, source-aware index for every maintained project file. | `sha256`, `migration_sources`, `maintained_files`, `python_summary`, `generic_summary`, `category`, `escape`, `main` | `新工程文件` |
 | `scripts/migration/migrate_from_v058.py` | 可审计迁移、哈希与代码地图维护工具。 | 从冻结的 IAG v0.5.8 仓库复制已验证生产文件并生成来源清单。 | `sha256`, `tracked_files`, `copy_one`, `source_commit`, `parse_args`, `main` | `新工程文件` |
 | `scripts/migration/migrate_runtime_config_v2.py` | 可审计迁移、哈希与代码地图维护工具。 | Add persistent-conversation defaults without replacing user credentials. | `migrate_config`, `main` | `tools/agent_runtime/migrate_config_v2.py` |
-| `scripts/release/build_release.py` | 仓库级配置、许可证或治理文件。 | Build and verify the five public v0.5.10 release attachments. | `network_from_spec`, `ReleaseError`, `project_version`, `sha256_file`, `run`, `source_commit`, `tracked_files`, `recreate` | `新工程文件` |
+| `scripts/release/build_release.py` | 仓库级配置、许可证或治理文件。 | Legacy installer packaging; not used for the OGAS source-only alpha tag. | `network_from_spec`, `ReleaseError`, `project_version`, `sha256_file`, `run`, `source_commit`, `tracked_files`, `recreate` | `新工程文件` |
+| `scripts/research/archive_evidence.py` | 仓库级配置、许可证或治理文件。 | Snapshot research files without changing originals; publish reviewed derivatives. | `sha`, `checked_digest`, `neutralize`, `public_copy`, `context`, `put`, `read_snapshot`, `build` | `新工程文件` |
+| `scripts/validation/check_publication.py` | 仓库级配置、许可证或治理文件。 | Check the actual staged source tree, not ignored local research outputs. | `git`, `staged_files`, `relative_links`, `audit`, `main` | `新工程文件` |
 | `scripts/validation/run_tests.py` | 仓库级配置、许可证或治理文件。 | Run every repository-local unittest module without requiring pytest. | `test_modules`, `build_suite`, `selected_test_modules`, `main` | `新工程文件` |
+| `scripts/validation/tests/test_check_publication.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `PublicationCheckTests` | `新工程文件` |
+| `scripts/validation/tests/test_evidence_archive.py` | 仓库级配置、许可证或治理文件。 | Publication never removes originals or confuses a derivative with raw data. | `EvidenceArchiveTests` | `新工程文件` |
+| `scripts/validation/tests/test_run_tests.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `TestDiscoveryTests` | `新工程文件` |
 | `services/research/Manage-IAGResearchServices.ps1` | 可选的本地联网检索服务。 | Windows PowerShell 操作、构建或诊断入口。 | - | `tools/research_services/Manage-IAGResearchServices.ps1` |
 | `services/research/README.md` | 可选的本地联网检索服务。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
 | `services/research/compose.yaml` | 可选的本地联网检索服务。 | 声明式本地化或服务配置。 | - | `tools/research_services/compose.yaml` |
@@ -163,37 +214,176 @@
 | `services/stellaris_native_runtime/actions/action_registry.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/actions/attack_fleet.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/actions/attack_fleet.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/capture_action.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/capture_action.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/captured_actions.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/claim_war_actions.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/diplomatic_action.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/diplomatic_proposal.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/galactic_community_actions.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/generated_capture_actions.inc` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/governance_actions.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/leader_actions.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/market_trade.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/actions/move_fleet.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/actions/move_fleet.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/native_command_support.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/select_event_option.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/situation_espionage_actions.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/actions/species_rights_actions.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/actions/stop_research.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/actions/stop_research.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/command_builder.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/command_producers.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/examples/example_action.cpp.example` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/game_api.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/include/iag_native_runtime/action.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/include/iag_native_runtime/command_builder.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/include/iag_native_runtime/command_producers.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/include/iag_native_runtime/game_api.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/include/iag_native_runtime/sdk_metadata.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/include/iag_native_runtime/sdk_probe.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/include/iag_native_runtime/state_query.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/include/iag_native_runtime/version_profile.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/platform/windows/native_runtime_loader.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/research/CMakeLists.txt` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/research/README.md` | 仓库级配置、许可证或治理文件。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
-| `services/stellaris_native_runtime/research/analyze_capture.py` | 仓库级配置、许可证或治理文件。 | Summarize and correlate Stellaris command-discovery probe captures. | `load_jsonl`, `dropped_event_count`, `infer_game_thread`, `ai_origin_types`, `payload_matches_wrapper`, `correlate_payloads`, `format_time_ns`, `print_counter` | `新工程文件` |
+| `services/stellaris_native_runtime/research/ai_megastructure_counter_probe.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/analyze_ai_megastructure_counter.py` | 仓库级配置、许可证或治理文件。 | Summarize exact AI megastructure counter snapshots. | `read_records`, `summarize`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/analyze_capture.py` | 仓库级配置、许可证或治理文件。 | Summarize and correlate Stellaris command-discovery probe captures. | `load_jsonl`, `load_jsonl_optional`, `dropped_event_count`, `infer_game_thread`, `ai_origin_types`, `payload_matches_wrapper`, `correlate_payloads`, `format_time_ns` | `新工程文件` |
+| `services/stellaris_native_runtime/research/analyze_mod_hook_compatibility.py` | 仓库级配置、许可证或治理文件。 | Build a conservative Mod/native-hook compatibility evidence report. | `load_json`, `analyze`, `main` | `新工程文件` |
 | `services/stellaris_native_runtime/research/analyze_windows_command.py` | 仓库级配置、许可证或治理文件。 | Find stripped Windows Stellaris command anchors from a native token. | `SectionView`, `parse_int`, `section_views`, `section_for_rva`, `find_all`, `function_ranges`, `containing_function`, `disassemble` | `新工程文件` |
 | `services/stellaris_native_runtime/research/command_probe.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/research/decode_fleet_movement.py` | 仓库级配置、许可证或治理文件。 | Decode verified Stellaris 4.4.6 fleet-movement probe layouts. | `decode_event`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/diplomatic_action_decoder.py` | 仓库级配置、许可证或治理文件。 | Decode captured CDiploActionProposeCommand nested action objects. | `decode_pdx_ref`, `decode_record`, `iter_records`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/discover_command_producers.py` | 仓库级配置、许可证或治理文件。 | Read-only local ELF producer inventory and instruction-verified call evidence. | `function_evidence`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/event_state_probe.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/research/find_windows_calc_ftl.py` | 仓库级配置、许可证或治理文件。 | Rank stripped PE functions resembling CGalacticObject::CalcFTLPointWith. | `Candidate`, `main` | `新工程文件` |
 | `services/stellaris_native_runtime/research/find_windows_game_idler.py` | 仓库级配置、许可证或治理文件。 | Rank stripped PE functions that structurally resemble CGameIdler::Idle. | `Candidate`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/inject_passive_probes.py` | 仓库级配置、许可证或治理文件。 | Load the exact-build passive discovery probes with one reviewed GDB attach. | `elf_build_id`, `gdb_string`, `render_gdb`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/long_run_capture.py` | 仓库级配置、许可证或治理文件。 | Archive long-running passive Stellaris command discovery captures. | `utc_now`, `atomic_write_json`, `append_jsonl`, `sha256_file`, `load_json`, `bounded_add`, `layout_signature`, `observe_layout_signature` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/__init__.py` | 仓库级配置、许可证或治理文件。 | Read-only observability tools for long-running Stellaris research sessions. | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/__main__.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `default_output`, `default_user_data`, `find_game_binary`, `parser`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/capture_adapter.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `CaptureStatusReader` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/common.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `utc_now`, `atomic_write_json`, `load_json`, `read_last_jsonl`, `parse_timestamp`, `game_date_ordinal` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/mod_inventory.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `parse_descriptor`, `external_definition_index`, `fingerprint_tree`, `read_save_mod_evidence`, `elf_build_id`, `sha256_path`, `ModInventoryCollector` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/overhead_benchmark.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `measure`, `compare_reports`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/perf_parser.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `Frame`, `PerfSample`, `parse_perf_script`, `aggregate_samples`, `build_flame_tree`, `build_diff_flame_tree` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/process_monitor.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `discover_stellaris_pid`, `ProcessMonitor` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/profiler.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `diagnose_perf`, `ProfilerConfig`, `PerfCollector`, `ProfilerController` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/server.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `DashboardHandler`, `serve` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/service.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `DashboardConfig`, `ObservationService` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/storage.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `ObservationStore` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/web/app.js` | 仓库级配置、许可证或治理文件。 | 控制台浏览器端交互、状态渲染或 API 调用逻辑。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/web/index.html` | 仓库级配置、许可证或治理文件。 | 控制台页面结构和静态资源入口。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/observe_dashboard/web/styles.css` | 仓库级配置、许可证或治理文件。 | 控制台视觉布局和主题样式。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/observer_takeover_client.py` | 仓库级配置、许可证或治理文件。 | Control the exact-build, one-shot observer takeover research probe. | `build_parser`, `request`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/observer_takeover_probe.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/research/payload_probe.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/resolve_event_content.py` | 仓库级配置、许可证或治理文件。 | Resolve event-state localization keys without calling game render functions. | `utc_now`, `iter_jsonl`, `collect_event_definitions`, `parse_localization_stream`, `localization_loose_files`, `resolve_localization`, `resolved_value`, `build_catalog` | `新工程文件` |
+| `services/stellaris_native_runtime/research/rotating_probe_log.h` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/rotating_probe_log_test.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/test_ai_megastructure_counter.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `snapshot`, `CounterAnalysisTest`, `ModCompatibilityAnalysisTest` | `新工程文件` |
 | `services/stellaris_native_runtime/research/test_analyze_capture.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `CaptureAnalyzerTests` | `新工程文件` |
 | `services/stellaris_native_runtime/research/test_decode_fleet_movement.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `DecodeFleetMovementTests` | `新工程文件` |
+| `services/stellaris_native_runtime/research/test_diplomatic_action_decoder.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `make_record`, `DiplomaticActionDecoderTests` | `新工程文件` |
+| `services/stellaris_native_runtime/research/test_discover_command_producers.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `ProducerEvidenceTests` | `新工程文件` |
+| `services/stellaris_native_runtime/research/test_long_run_capture.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `write_jsonl`, `SegmentArchiverTests`, `LiveCoverageTests`, `ActiveStreamTailTests`, `SaveArchiverTests` | `新工程文件` |
+| `services/stellaris_native_runtime/research/test_observe_dashboard.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `PerfParserTests`, `ArchitectureBoundaryTests`, `CaptureAdapterTests`, `ModInventoryTests`, `StoreAndControllerTests` | `新工程文件` |
+| `services/stellaris_native_runtime/research/test_resolve_event_content.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `ResolveEventContentTests` | `新工程文件` |
+| `services/stellaris_native_runtime/research/ui_bridge/CMakeLists.txt` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/ui_bridge/README.md` | 仓库级配置、许可证或治理文件。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/ui_bridge/assets/README.md` | 仓库级配置、许可证或治理文件。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/ui_bridge/echo_agent.py` | 仓库级配置、许可证或治理文件。 | Tiny external peer for the exact-build native UI research bridge. | `escape_field`, `unescape_field`, `serve`, `push_message`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/research/ui_bridge/iag_llm_chat.gfx` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/ui_bridge/iag_llm_chat.gui` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/research/ui_bridge/native_ui_bridge.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/research/windows/CMakeLists.txt` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/research/windows/README.md` | 仓库级配置、许可证或治理文件。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/research/windows/windows_move_probe.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/research/windows/windows_probe_tool.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/runtime.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/runtime_windows.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/sdk_metadata.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/sdk_probe.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/state_query.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/tests/action_contract_test.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tests/command_builder_test.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tests/command_producers_test.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/generate_capture_actions.py` | 仓库级配置、许可证或治理文件。 | Generate exact-layout native adapters from the 4.4.6 packet fixtures. | `Field`, `Action`, `field`, `cpp_name`, `build_record`, `scalar_patches`, `string_patches`, `alternate_target` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/incremental_recovered_commands.py` | 仓库级配置、许可证或治理文件。 | Bounded, non-submitting SDK research alongside an existing game/runtime. | `digest`, `write_new`, `append`, `SessionChanged`, `Settings`, `ProcessObservation`, `family_for_type`, `SaveEvidence` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/inject_runtime.py` | 仓库级配置、许可证或治理文件。 | Load the exact-build production runtime into one running Stellaris process. | `elf_build_id`, `gdb_string`, `render_gdb`, `verify_exact_binary`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/plan_script_candidates.py` | 仓库级配置、许可证或治理文件。 | Offline Command constraints/candidates for the entire generated SDK. | `write_new`, `archive_sources`, `recovery_worklist`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/prepare_validation_window.py` | 仓库级配置、许可证或治理文件。 | Offline acceptance inputs from an existing SDK and immutable live report. | `prepare`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/probe_command.py` | 仓库级配置、许可证或治理文件。 | Validate one SDK-constructed research candidate without submitting it. | `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/runtime_request.py` | 仓库级配置、许可证或治理文件。 | Send one bounded request to a locally loaded Stellaris native runtime. | `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/README.md` | 仓库级配置、许可证或治理文件。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/__init__.py` | 仓库级配置、许可证或治理文件。 | Offline, conservative script constraints for recovered native Commands. | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/constraints.py` | 仓库级配置、许可证或治理文件。 | Partial script evaluation. Unknown syntax/facts never imply legality. | `Truth`, `conjunction`, `disjunction`, `ObjectRef`, `Fact`, `World`, `Scope`, `Evaluation` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/content.py` | 仓库级配置、许可证或治理文件。 | External content index with explicit overlay provenance, never 'loaded DB'. | `ContentLayer`, `Content`, `load_content` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/feedback.py` | 仓库级配置、许可证或治理文件。 | Evidence-scoped validator feedback; no learning unsupported general rules. | `parameter_key`, `Feedback` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/native_guards.py` | 仓库级配置、许可证或治理文件。 | Conservative CFG abstract interpretation of native payload rejection guards. | `operand`, `transfer`, `analyze`, `extract_guards`, `evaluate_guard` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/native_predicates.py` | 仓库级配置、许可证或治理文件。 | Recover small native field predicates and serializer-backed enum semantics. | `register`, `pure_predicate`, `enum_table`, `discover_predicates` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/native_rules.py` | 仓库级配置、许可证或治理文件。 | Bounded exact-ELF rule/call/guard discovery for the complete SDK catalog. | `snake`, `Discovery` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/parser/.gitignore` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/parser/CWTOOLS_LICENSE.txt` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/parser/CwtoolsBridge.csproj` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/parser/Program.cs` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/parser/packages.lock.json` | 仓库级配置、许可证或治理文件。 | 结构化配置、schema 或声明式映射；运行时按 JSON 校验。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/pipeline.py` | 仓库级配置、许可证或治理文件。 | Research coordinator over the EXISTING runtime queue/Builder/IsValid lane. | `native_bindings`, `run_validation` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/planner.py` | 仓库级配置、许可证或治理文件。 | Typed, bounded candidate search combining script/native/producer evidence. | `Binding`, `Candidate`, `discover_definition_families`, `scope_hints`, `plan_command`, `summarize` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/semantic_audit.py` | 仓库级配置、许可证或治理文件。 | Evidence-based parameter provenance and construction capability audit. | `ParameterSource`, `ParameterContract`, `command_phase`, `field_contract`, `native_neighborhood`, `search_game_sources`, `audit_command`, `audit_summary` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/snapshot.py` | 仓库级配置、许可证或治理文件。 | Frozen-save fact adapter. All full reference IDs remain generation-bearing. | `world_cache`, `restore_world_cache`, `anon_values`, `adapt_object`, `nested_database`, `load_snapshot` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/spatial.py` | 仓库级配置、许可证或治理文件。 | Thin read-only reuse of save maps and native coordinate metadata. | `LocalPoint`, `fixed_raw`, `SpatialContext`, `load_spatial_model` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/script_candidates/syntax.py` | 仓库级配置、许可证或治理文件。 | Lossless-for-constraints ordered AST from the optional CWTools bridge. | `Node`, `ParseError`, `CwtoolsParser` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/README.md` | 仓库级配置、许可证或治理文件。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/array_recovery.py` | 仓库级配置、许可证或治理文件。 | Recover reference-array writer arguments by bounded address-origin CFG flow. | `argument_locations`, `proven_pair`, `recover_reference_arrays` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/audit_recovery.py` | 仓库级配置、许可证或治理文件。 | Join an immutable live batch with fresh offline SDK evidence, for every row. | `audit`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/callsite_arguments.py` | 仓库级配置、许可证或治理文件。 | Find verified direct constructor calls and basic-block-local literal args. | `recover_callsites`, `apply_callsite_evidence` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/coordinate_values.py` | 仓库级配置、许可证或治理文件。 | Recover the shared native coordinate value, never a per-Command layout. | `recover_coordinate_value`, `bind_coordinate_regions` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/emit_ogas.py` | 仓库级配置、许可证或治理文件。 | Emit the same recovered engine layouts for OGAS research and production builders. | `catalog_fingerprint`, `recovered_command_name`, `field_layout`, `flat_layout_complete`, `population_layout_complete`, `emit_header` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/inspect_dwarf.py` | 仓库级配置、许可证或治理文件。 | Check actual DWARF coverage before assuming .debug_info describes game types. | `inspect`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/linux_elf.py` | 仓库级配置、许可证或治理文件。 | Recover serializer fields and command metadata directly from a symbolized ELF. | `demangle`, `register`, `ElfImage`, `writer_kind`, `extract_serializer`, `recover_linux` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/record_candidates.py` | 仓库级配置、许可证或治理文件。 | Offline record-source recovery and bounded read-only correlated hints. | `recover_country_record_source`, `discover_country_records` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/recover_sdk.py` | 仓库级配置、许可证或治理文件。 | Recover an OGAS engine SDK from the current Linux ELF and Windows PE. | `write_json`, `run_stage`, `normalize_windows`, `compare_reference`, `compare_ogas_evidence`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/recovery_plans.py` | 仓库级配置、许可证或治理文件。 | Bounded, evidence-producing extensions to the direct ELF SDK index. | `native_counter_record_identity`, `native_assignment_dependency`, `factory_evidence`, `recover_definitions`, `definition_lookup_evidence`, `token_evidence`, `positive_quantity_guards`, `constructor_parameter_evidence` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/requirements.txt` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/scoped_id_candidates.py` | 仓库级配置、许可证或治理文件。 | Bounded external-memory hints for recovered country-scoped IDs. | `ReadBudget`, `discover_scoped_ids` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/scoped_id_recovery.py` | 仓库级配置、许可证或治理文件。 | Offline proof of country-owned scalar IDs, never TPdxRef reclassification. | `recover_scoped_validator_binding`, `recover_country_scoped_accessors`, `scoped_id_bindings` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/test_record_candidates.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `SourceRecoveryTests`, `Memory`, `CorrelatedRecordTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/test_recovery_plans.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `RecoveryEvidenceTests`, `PopulationPlanTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/test_scoped_id_candidates.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `Memory`, `ScopedCandidateTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/test_scoped_id_recovery.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `CountryScopedRecoveryTests`, `CountryScopeBindingTests`, `SpecialProjectBindingTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/test_sdk_recovery.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `ElfSerializerTests`, `GeneratedMetadataTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/value_recovery.py` | 仓库级配置、许可证或治理文件。 | Shared native value recovery, with normal-flow and ownership evidence. | `refine_named_enum_fields`, `recover_save_collection_bindings`, `copy_parameter_bindings`, `normal_flow`, `NormalImage`, `paired_lifecycle_evidence`, `refine_catalog` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/vendor/LICENSE` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/vendor/UPSTREAM.md` | 仓库级配置、许可证或治理文件。 | 项目说明、设计依据或历史参考文档。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/vendor/emit_sdk.py` | 仓库级配置、许可证或治理文件。 | Stage 3: turn win_layouts.json into the bridge SDK. | `ident`, `camel`, `copies_from_rcx`, `discover_commands`, `flatten_entity`, `type_comment`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/vendor/functions.py` | 仓库级配置、许可证或治理文件。 | Stage 2c: locate engine functions that the bridge calls directly, by structural fingerprint. | `match_by_mnemonics`, `match_by_strings`, `entry_of`, `aligned_entry`, `match_call_near`, `command_slot`, `call_near_in`, `match_vtable_call` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/vendor/globals.py` | 仓库级配置、许可证或治理文件。 | Stage 2b: resolve named engine globals (TPdxRef<T>::_pDatabase, TPdxNullObject<T>::_pInstance, | `linux_symbols`, `linux_symbols_from_decompile`, `token_branch_global`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/vendor/linux_index.py` | 仓库级配置、许可证或治理文件。 | Stage 1: index serializer functions in the Linux (symbolized) Ghidra decompile. | `classify`, `parse_body`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/vendor/linux_tokens.json` | 仓库级配置、许可证或治理文件。 | 结构化配置、schema 或声明式映射；运行时按 JSON 校验。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/vendor/validate.py` | 仓库级配置、许可证或治理文件。 | Regression check for the SDK dumper against layouts verified by hand (engine factories, | `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/sdk_recovery/vendor/win_extract.py` | 仓库级配置、许可证或治理文件。 | Stage 2: resolve Windows layouts for every serializer indexed from the Linux build. | `Image`, `purecall_rva`, `find_calls_to`, `token_names`, `serializer_candidates`, `mem_ops`, `fam`, `regs_rw` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/test_coordinate_reuse.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `SpatialSourceTests`, `CoordinateImage`, `coordinate_command`, `CoordinateRecoveryTests`, `SpatialCandidateTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/test_incremental_recovered_commands.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `settings`, `pending`, `snapshot`, `IncrementalPlanningTests`, `IncrementalEvidenceTests`, `IncrementalRuntimeTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/test_prepare_validation_window.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `PreparationTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/test_script_candidates.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `scalar`, `block`, `command`, `candidate`, `ConstraintTests`, `NativeGuardTests`, `PlannerTests`, `NativePredicateTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/test_semantic_audit.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `field`, `sample`, `catalog`, `candidate_row`, `SemanticAuditTests`, `NativeValueRecoveryTests`, `NestedSnapshotTests`, `DefinitionFamilyDiscoveryTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/test_validate_recovered_commands.py` | 仓库级配置、许可证或治理文件。 | Python 模块；详细职责见邻接 README。 | `result`, `RecoveredBatchTests` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/validate_constraint_candidates.py` | 仓库级配置、许可证或治理文件。 | Review generated candidates offline, or explicitly validate in a future window. | `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/validate_recovered_commands.py` | 仓库级配置、许可证或治理文件。 | Batch SDK construction/IsValid research in one already-loaded runtime. | `write_new_json`, `run_batch`, `compare_fixture_rounds`, `run_validation_window`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/tools/version_profile/verify_binary.py` | 仓库级配置、许可证或治理文件。 | Verify an exact Stellaris binary against a native-runtime evidence manifest. | `Section`, `BinaryImage`, `main` | `新工程文件` |
+| `services/stellaris_native_runtime/versions/generated/stellaris_4_5_2_linux_sdk.hpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/versions/generated/stellaris_4_5_2_sdk_report.json` | 仓库级配置、许可证或治理文件。 | 结构化配置、schema 或声明式映射；运行时按 JSON 校验。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/versions/generated/stellaris_4_5_2_windows_sdk.hpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/versions/manifests/stellaris_4_5_2_linux.json` | 仓库级配置、许可证或治理文件。 | 结构化配置、schema 或声明式映射；运行时按 JSON 校验。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/versions/manifests/stellaris_4_5_2_windows.json` | 仓库级配置、许可证或治理文件。 | 结构化配置、schema 或声明式映射；运行时按 JSON 校验。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/versions/stellaris_4_4_6.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
 | `services/stellaris_native_runtime/versions/stellaris_4_4_6_windows.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
-| `src/iag/__init__.py` | 仓库级配置、许可证或治理文件。 | Imperial Auto Governor 群星多 Agent 平台。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/versions/stellaris_4_5_2.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `services/stellaris_native_runtime/versions/stellaris_4_5_2_windows.cpp` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
+| `src/iag/__init__.py` | 仓库级配置、许可证或治理文件。 | OGAS 群星多 Agent 平台。 | - | `新工程文件` |
 | `src/iag/applications/README.md` | 平台原生 Application 注册、跨域调度与确定性续接。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
 | `src/iag/applications/__init__.py` | 平台原生 Application 注册、跨域调度与确定性续接。 | 平台内置的第一方领域 Application。 | - | `新工程文件` |
 | `src/iag/applications/economy_governance/README.md` | 经济治理 Application 的规则、工具和提示词。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
@@ -285,6 +475,7 @@
 | `src/iag/stellaris/__init__.py` | 仓库级配置、许可证或治理文件。 | Stellaris 领域层。 | - | `新工程文件` |
 | `src/iag/stellaris/execution/README.md` | 游戏侧点击、网络发现、执行监督和确认。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
 | `src/iag/stellaris/execution/__init__.py` | 游戏侧点击、网络发现、执行监督和确认。 | Stellaris 副作用执行边界。 | - | `新工程文件` |
+| `src/iag/stellaris/execution/_native_capture_adapter.py` | 游戏侧点击、网络发现、执行监督和确认。 | Private bridge from reviewed packet targets to capture-backed runtime input. | `adapt_capture_target`, `uses_serialized_body_adapter` | `新工程文件` |
 | `src/iag/stellaris/execution/action_registry.py` | 游戏侧点击、网络发现、执行监督和确认。 | Public semantic action contracts for Stellaris side effects. | `ActionRisk`, `VerificationState`, `BackendId`, `SemanticTarget`, `BuildBuildingTarget`, `UpgradeBuildingTarget`, `ReplaceBuildingTarget`, `BuildDistrictTarget` | `新工程文件` |
 | `src/iag/stellaris/execution/broker.py` | 游戏侧点击、网络发现、执行监督和确认。 | Semantic execution broker and backend contract. | `ExecutionBrokerError`, `IdempotencyConflict`, `SourceSnapshot`, `ExecutionAuthority`, `CandidateIdentity`, `semantic_target_fingerprint`, `PreparedAction`, `OrderedActionSequence` | `新工程文件` |
 | `src/iag/stellaris/execution/fixed_click.py` | 游戏侧点击、网络发现、执行监督和确认。 | Platform facade for guarded fixed-coordinate Stellaris clicks. | - | `tools/agent_runtime/fixed_click.py` |
@@ -293,7 +484,7 @@
 | `src/iag/stellaris/execution/iag_linux_interceptor.py` | 游戏侧点击、网络发现、执行监督和确认。 | One-shot Linux NFQUEUE interceptor for the non-host Stellaris client. | `RuntimeState`, `now_iso`, `has_effective_capability`, `interceptor_lock_path`, `append_event`, `atomic_write_json`, `telemetry_document`, `publish_telemetry` | `tools/agent_runtime/iag_linux_interceptor.py` |
 | `src/iag/stellaris/execution/iag_supervisor.py` | 游戏侧点击、网络发现、执行监督和确认。 | 在载体点击与会话代理之间编排准备、执行、确认和失败保护。 | - | `tools/agent_runtime/iag_supervisor.py` |
 | `src/iag/stellaris/execution/linux_packet.py` | 游戏侧点击、网络发现、执行监督和确认。 | Pure IPv4/UDP and Stellaris payload helpers for the Linux interceptor. | `UdpView`, `internet_checksum`, `parse_ipv4_udp`, `replace_udp_payload`, `validate_host_ip`, `rewrite_stellaris_payload`, `expected_authoritative_needle` | `tools/agent_runtime/linux_packet.py` |
-| `src/iag/stellaris/execution/native_runtime.py` | 游戏侧点击、网络发现、执行监督和确认。 | Private client for a platform-native Stellaris in-process runtime. | `NativeRuntimeError`, `NativeRuntimeOutcome`, `NativeRuntimeParameter`, `NativeRuntimeTool`, `NativeRuntimeManifest`, `NativeRuntimeResponse`, `NativeRuntimeClient` | `新工程文件` |
+| `src/iag/stellaris/execution/native_runtime.py` | 游戏侧点击、网络发现、执行监督和确认。 | Private client for a platform-native Stellaris in-process runtime. | `NativeRuntimeError`, `NativeRuntimeOutcome`, `NativeRuntimeParameter`, `NativeRuntimeTool`, `NativeRuntimeManifest`, `NativeRuntimeResponse`, `NativeOpenEventOption`, `NativeRecoveredCommandCatalog` | `新工程文件` |
 | `src/iag/stellaris/execution/packet/README.md` | 协作命令的离线解析、精确构造与受约束改写。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
 | `src/iag/stellaris/execution/packet/__init__.py` | 协作命令的离线解析、精确构造与受约束改写。 | 已由联机实验验证的建设命令解析与等长改写原语。 | - | `新工程文件` |
 | `src/iag/stellaris/execution/packet/autonomous_commands.py` | 协作命令的离线解析、精确构造与受约束改写。 | Verified Clausewitz command builders used by the session proxy. | `now_iso`, `sha256_hex`, `append_jsonl`, `add_vendor_runtime`, `BuildingTarget`, `build_building_record`, `InjectionResult`, `BoundaryInjectionResult` | `新工程文件` |
@@ -323,6 +514,7 @@
 | `src/iag/stellaris/execution/tests/test_extended_protocol_commands.py` | 游戏侧点击、网络发现、执行监督和确认。 | Python 模块；详细职责见邻接 README。 | `reliable_header`, `ExtendedProtocolCommandTests` | `新工程文件` |
 | `src/iag/stellaris/execution/tests/test_fleet_reinforcement_commands.py` | 游戏侧点击、网络发现、执行监督和确认。 | Python 模块；详细职责见邻接 README。 | `FleetReinforcementCommandTests` | `新工程文件` |
 | `src/iag/stellaris/execution/tests/test_host_bridge_pairing.py` | 游戏侧点击、网络发现、执行监督和确认。 | Tests for runtime pairing of Host Bridge and game-overlay credentials. | `HostBridgePairingTests` | `新工程文件` |
+| `src/iag/stellaris/execution/tests/test_native_capture_adapter.py` | 游戏侧点击、网络发现、执行监督和确认。 | Python 模块；详细职责见邻接 README。 | `NativeCaptureAdapterTests` | `新工程文件` |
 | `src/iag/stellaris/execution/tests/test_native_runtime.py` | 游戏侧点击、网络发现、执行监督和确认。 | Python 模块；详细职责见邻接 README。 | `NativeRuntimeClientTests` | `新工程文件` |
 | `src/iag/stellaris/execution/tests/test_native_runtime_layout.py` | 游戏侧点击、网络发现、执行监督和确认。 | Python 模块；详细职责见邻接 README。 | `NativeRuntimeLayoutTests` | `新工程文件` |
 | `src/iag/stellaris/execution/tests/test_protocol_compatibility.py` | 游戏侧点击、网络发现、执行监督和确认。 | Python 模块；详细职责见邻接 README。 | `ProtocolCompatibilityTests` | `新工程文件` |
@@ -349,6 +541,7 @@
 | `src/iag/stellaris/state/tests/README.md` | Stellaris 存档事实读取与规范化。 | 该目录的职责、边界、主要文件和开发注意事项。 | - | `新工程文件` |
 | `src/iag/stellaris/state/tests/test_campaign_routes.py` | Stellaris 存档事实读取与规范化。 | Python 模块；详细职责见邻接 README。 | `CampaignRoutePlannerTests` | `新工程文件` |
 | `src/iag/stellaris/state/tests/test_expansion_profiles.py` | Stellaris 存档事实读取与规范化。 | Python 模块；详细职责见邻接 README。 | `ExpansionProfileTests` | `新工程文件` |
+| `src/iag/stellaris/state/tests/test_extract_game_state.py` | Stellaris 存档事实读取与规范化。 | Python 模块；详细职责见邻接 README。 | `ConstructionItemProfileTests` | `新工程文件` |
 | `src/iag/stellaris/state/tests/test_fleet_profiles.py` | Stellaris 存档事实读取与规范化。 | Python 模块；详细职责见邻接 README。 | `ExtractFleetProfilesTests` | `新工程文件` |
 | `src/iag/stellaris/state/tests/test_invasion_profiles.py` | Stellaris 存档事实读取与规范化。 | Python 模块；详细职责见邻接 README。 | `profile`, `InvasionProfileSelectionTests` | `新工程文件` |
 | `src/iag/stellaris/state/tests/test_research_profiles.py` | Stellaris 存档事实读取与规范化。 | Python 模块；详细职责见邻接 README。 | `ResearchProfileTests` | `新工程文件` |
@@ -367,6 +560,3 @@
 | `stellaris_mod/events/iag_carrier_events.txt` | 建设载体 Clausewitz Mod 源码。 | Stellaris Clausewitz 定义；只影响建设载体 Mod。 | - | `events/iag_carrier_events.txt` |
 | `stellaris_mod/localisation/english/iag_l_english.yml` | 建设载体 Clausewitz Mod 源码。 | 声明式本地化或服务配置。 | - | `localisation/english/iag_l_english.yml` |
 | `stellaris_mod/localisation/simp_chinese/iag_l_simp_chinese.yml` | 建设载体 Clausewitz Mod 源码。 | 声明式本地化或服务配置。 | - | `localisation/simp_chinese/iag_l_simp_chinese.yml` |
-| `vc140.pdb` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
-| `windows_move_probe.obj` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |
-| `windows_probe_tool.obj` | 仓库级配置、许可证或治理文件。 | 项目维护文件；用途由路径和邻接 README 约束。 | - | `新工程文件` |

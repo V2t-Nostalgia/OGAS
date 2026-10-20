@@ -17,12 +17,17 @@ ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "docs" / "code-map" / "FILE_INDEX.md"
 IGNORED_PARTS = {
     ".git",
+    ".publication",
+    ".runtime-evidence",
+    ".runtime-analysis",
     ".idea",
     ".tmp",
     ".venv",
     ".pytest_cache",
     ".ruff_cache",
     "__pycache__",
+    "obj",
+    "bin",
 }
 IGNORED_ROOTS = {
     "artifacts",
@@ -114,7 +119,7 @@ PREFIX_NOTES = (
     ("src/iag/applications/", "平台原生 Application 注册、跨域调度与确定性续接。"),
     ("src/iag/infrastructure/llm/", "模型供应商协议和请求模板适配。"),
     ("src/iag/infrastructure/research/", "不可信网页资料的检索与正文提取适配。"),
-    ("apps/control_center/web/", "灰风控制台的浏览器端界面资源。"),
+    ("apps/control_center/web/", "OGAS 控制台的浏览器端界面资源。"),
     ("apps/control_center/", "Agent 控制面与 Windows 启动入口。"),
     ("apps/game_overlay/", "房主侧透明游戏会话叠加层。"),
     ("apps/host_bridge/", "房主 Windows 端存档上传和入站改写桥。"),
@@ -155,7 +160,10 @@ def maintained_files() -> list[Path]:
         ):
             continue
         relative = relative_path.as_posix()
-        if relative in IGNORED_FILES or path.suffix.lower() in {".pyc", ".pyo"}:
+        if relative in IGNORED_FILES or path.suffix.lower() in {
+            ".pyc", ".pyo", ".exe", ".dll", ".so", ".pdb", ".obj", ".o", ".a", ".lib",
+            ".png", ".jpg", ".jpeg", ".dds", ".ttf", ".otf", ".zip", ".gz", ".sav", ".pcap", ".pcapng",
+        }:
             continue
         values.append(path)
     return sorted(values, key=lambda item: item.relative_to(ROOT).as_posix())

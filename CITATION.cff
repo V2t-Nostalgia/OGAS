@@ -1,16 +1,16 @@
 cff-version: 1.2.0
 message: "If you use this software or its documented method, please cite it using this metadata."
-title: "Imperial Auto Governor"
+title: "OGAS"
 type: software
-version: 0.5.10
-date-released: 2026-09-14
+version: 0.6.0-alpha.1
+repository-code: "https://github.com/V2t-Nostalgia/OGAS"
 authors:
   - name: "Nostalgia"
-  - name: "Imperial Auto Governor contributors"
+  - name: "OGAS contributors"
 abstract: >-
-  A save-driven, tool-using Stellaris co-op agent with constrained economic
-  planning, guarded carrier execution, an experimental reliable-stream session
-  proxy, per-fleet authorization, and explicit machine execution evidence.
+  Specialist AI agents for persistent Stellaris empire governance, with
+  structured planning, an Execution Broker, version-bound native execution
+  research, automated Command recovery, and explicit verification evidence.
 keywords:
   - Stellaris
   - game AI

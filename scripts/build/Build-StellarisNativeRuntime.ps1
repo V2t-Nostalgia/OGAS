@@ -72,8 +72,13 @@ $Common = @(
 )
 $RuntimeSources = @(
     (Join-Path $ServiceRoot "runtime_windows.cpp"),
-    (Join-Path $ServiceRoot "game_api.cpp")
-) + $ActionSources + @((Join-Path $ServiceRoot "versions\stellaris_4_4_6_windows.cpp"))
+    (Join-Path $ServiceRoot "game_api.cpp"),
+    (Join-Path $ServiceRoot "command_builder.cpp"),
+    (Join-Path $ServiceRoot "command_producers.cpp"),
+    (Join-Path $ServiceRoot "sdk_metadata.cpp"),
+    (Join-Path $ServiceRoot "sdk_probe.cpp"),
+    (Join-Path $ServiceRoot "state_query.cpp")
+) + $ActionSources + @((Join-Path $ServiceRoot "versions\stellaris_4_5_2_windows.cpp"))
 
 Push-Location $ObjectRoot
 try {
@@ -93,14 +98,57 @@ try {
     Invoke-DeveloperCommand ($Common + @(
         "/Fe:$(Join-Path $ObjectRoot 'iag_native_runtime_action_contract_test.exe')",
         (Join-Path $ServiceRoot "tests\action_contract_test.cpp"),
-        (Join-Path $ServiceRoot "game_api.cpp")
+        (Join-Path $ServiceRoot "game_api.cpp"),
+        (Join-Path $ServiceRoot "state_query.cpp")
     ) + $ActionSources + @(
-        (Join-Path $ServiceRoot "versions\stellaris_4_4_6_windows.cpp")
+        (Join-Path $ServiceRoot "versions\stellaris_4_5_2_windows.cpp")
     ))
-    & (Join-Path $ObjectRoot "iag_native_runtime_action_contract_test.exe")
+    $ContractTest = Join-Path $ObjectRoot "iag_native_runtime_action_contract_test.exe"
+    & $ContractTest
     if ($LASTEXITCODE -ne 0) {
         throw "Native runtime action contract test failed."
     }
+    $ManifestJson = (& $ContractTest --dump-manifest) -join "`n"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Native runtime manifest dump failed."
+    }
+    $Manifest = $ManifestJson | ConvertFrom-Json
+    if ($Manifest.platform -ne "windows-x64" -or $Manifest.tools.Count -eq 0) {
+        throw "Native runtime manifest is missing the Windows action catalog."
+    }
+    [System.IO.File]::WriteAllText(
+        (Join-Path $OutputRoot "native_tool_manifest.json"),
+        $ManifestJson + "`n",
+        [System.Text.UTF8Encoding]::new($false)
+    )
+    $BuilderTest = Join-Path $ObjectRoot 'iag_native_runtime_command_builder_test.exe'
+    Invoke-DeveloperCommand ($Common + @(
+        "/Fe:$BuilderTest",
+        (Join-Path $ServiceRoot 'tests\command_builder_test.cpp'),
+        (Join-Path $ServiceRoot 'command_builder.cpp'),
+        (Join-Path $ServiceRoot 'command_producers.cpp'),
+        (Join-Path $ServiceRoot 'sdk_metadata.cpp'),
+        (Join-Path $ServiceRoot 'sdk_probe.cpp'),
+        (Join-Path $ServiceRoot 'game_api.cpp'),
+        (Join-Path $ServiceRoot 'versions\stellaris_4_5_2_windows.cpp')
+    ))
+    & $BuilderTest
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Generated command builder test failed.'
+    }
+    $ProducerTest = Join-Path $ObjectRoot 'iag_native_runtime_command_producers_test.exe'
+    Invoke-DeveloperCommand ($Common + @(
+        "/Fe:$ProducerTest",
+        (Join-Path $ServiceRoot 'tests\command_producers_test.cpp'),
+        (Join-Path $ServiceRoot 'command_builder.cpp'),
+        (Join-Path $ServiceRoot 'command_producers.cpp'),
+        (Join-Path $ServiceRoot 'sdk_metadata.cpp'),
+        (Join-Path $ServiceRoot 'sdk_probe.cpp'),
+        (Join-Path $ServiceRoot 'game_api.cpp'),
+        (Join-Path $ServiceRoot 'versions\stellaris_4_5_2_windows.cpp')
+    ))
+    & $ProducerTest
+    if ($LASTEXITCODE -ne 0) { throw 'Domain command producer test failed.' }
 } finally {
     Pop-Location
 }
