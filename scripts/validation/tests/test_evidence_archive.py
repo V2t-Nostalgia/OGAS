@@ -18,6 +18,13 @@ SPEC.loader.exec_module(archive)
 
 
 class EvidenceArchiveTests(unittest.TestCase):
+    def test_source_snapshot_formats_do_not_bypass_privacy(self):
+        for name in ('tool.py.snapshot', 'Program.cs', 'generated.inc', 'tests.stderr'):
+            exported, _ = archive.public_copy(name, b'ordinary project source', {})
+            self.assertIsNotNone(exported)
+            self.assertIsNone(archive.public_copy(name, b'{"password":"example-secret"}', {})[0])
+        self.assertIsNone(archive.public_copy('world.snapshot', b'unknown object state', {})[0])
+
     def test_review_withholds_all_aliases_without_removing_originals(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)

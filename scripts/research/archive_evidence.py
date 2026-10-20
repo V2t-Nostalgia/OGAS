@@ -36,7 +36,8 @@ def checked_digest(value: str) -> str:
 
 
 TEXT_EXTENSIONS = {".json", ".jsonl", ".ndjson", ".log", ".txt", ".md", ".csv", ".tsv",
-                   ".py", ".cpp", ".h", ".hpp", ".c", ".toml", ".yaml", ".yml", ".sh", ".ps1", ".asm", ".s"}
+                   ".py", ".cpp", ".h", ".hpp", ".c", ".toml", ".yaml", ".yml", ".sh", ".ps1", ".asm", ".s",
+                   ".cs", ".csproj", ".inc", ".js", ".html", ".css", ".stdout", ".stderr", ".patch", ".asc"}
 RESTRICTED_EXTENSIONS = {".sav", ".pcap", ".pcapng", ".db", ".sqlite", ".sqlite3", ".png", ".jpg", ".jpeg",
                         ".webp", ".dds", ".exe", ".dll", ".so", ".pdb", ".obj", ".lib", ".a", ".o", ".bin",
                         ".data", ".zip", ".tar", ".gz", ".xz", ".zst", ".npz", ".pyc", ".pyo", ".cache"}
@@ -83,6 +84,8 @@ def neutralize(text: str, policy: dict) -> str:
 def public_copy(path: str, data: bytes, policy: dict) -> tuple[bytes | None, str]:
     name = Path(path).name.lower()
     suffix = Path(path).suffix.lower()
+    if suffix == '.snapshot' and Path(path[:-9]).suffix.lower() in TEXT_EXTENSIONS:
+        suffix = Path(path[:-9]).suffix.lower()
     if any(re.search(pattern, path, re.I) for pattern in policy.get("withhold_paths", [])):
         return None, "private_policy_or_third_party_content"
     if suffix == ".gz" and ".jsonl" in name:
@@ -302,7 +305,8 @@ def write_pointers(public: Path, rows: list[dict]):
         pointer.write_text(text, encoding="utf-8")
 
 
-def review(export: Path, output: Path, deny_paths: list[str]) -> dict:
+def review(export: Path, output: Path, deny_paths: list[str], source_vault: Path | None = None,
+           allow_source_paths=(), policy: dict | None = None) -> dict:
     """Create a separate reviewed tree; denied bytes never enter its object set."""
     index = export / 'index.jsonl'
     if export.resolve() in output.resolve().parents:
@@ -315,8 +319,24 @@ def review(export: Path, output: Path, deny_paths: list[str]) -> dict:
     raw_hashes = {r['original_sha256'] for r in denied if r['original_sha256']}
     public_hashes = {r['public_sha256'] for r in denied if r['public_sha256']}
     output.mkdir(parents=True, exist_ok=False)
-    decisions, copied, sizes = [], set(), {}
+    decisions, copied, sizes, source_reviews = [], set(), {}, []
     for row in rows:
+        if (source_vault and row['access'] == 'unreviewed_format' and row['original_sha256'] not in raw_hashes
+                and any(re.search(pattern, row['path'], re.I) for pattern in allow_source_paths)):
+            raw_digest = checked_digest(row['original_sha256'])
+            with gzip.open(source_vault / 'objects' / raw_digest[:2] / (raw_digest + '.gz'), 'rb') as stream:
+                original = stream.read()
+            if sha(original) != raw_digest:
+                raise ValueError('Corrupt original for source-format review')
+            exported, disposition = public_copy(row['path'], original, policy or {})
+            if exported is not None:
+                digest = put(output / 'objects', exported)
+                row.update(access=disposition, public_sha256=digest,
+                           object='objects/' + digest[:2] + '/' + digest + '.gz')
+                copied.add(digest)
+                sizes[digest] = len(exported)
+                source_reviews.append({'path': row['path'], 'original_sha256': raw_digest,
+                                       'reason': 'explicit_source_format_review_and_reapplied_privacy_policy'})
         if row['public_sha256'] and (row['original_sha256'] in raw_hashes or row['public_sha256'] in public_hashes):
             decisions.append({'path': row['path'], 'original_sha256': row['original_sha256'],
                               'previous_access': row['access'], 'reason': 'explicit_review_rule_or_identical_content'})
@@ -347,10 +367,12 @@ def review(export: Path, output: Path, deny_paths: list[str]) -> dict:
     (output / 'ARCHIVE.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
     receipt = {'input_index_sha256': sha(index.read_bytes()), 'input_export_retained': True,
                'deny_path_patterns': deny_paths, 'decisions': decisions,
+               'allow_source_path_patterns': list(allow_source_paths), 'source_format_reviews': source_reviews,
                'withholding_is_not_deletion': True, 'output_index_sha256': manifest['index_sha256']}
     (output / 'REVIEW.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
     write_pointers(output, rows)
-    return {'reviewed_files': len(rows), 'restricted_by_review': len(decisions), 'public_objects': len(copied)}
+    return {'reviewed_files': len(rows), 'restricted_by_review': len(decisions),
+            'source_formats_reviewed': len(source_reviews), 'public_objects': len(copied)}
 
 
 def write_jsonl(path: Path, rows: list[dict]):
@@ -432,6 +454,10 @@ def main():
     curated.add_argument('--export', type=Path, required=True)
     curated.add_argument('--output', type=Path, required=True)
     curated.add_argument('--deny-path', action='append', required=True)
+    curated.add_argument('--source-vault', type=Path)
+    curated.add_argument('--allow-source-path', action='append', default=[])
+    curated.add_argument('--private-policy', type=Path)
+    curated.add_argument('--sensitive-input', action='store_true')
     args = parser.parse_args()
     if args.mode == "build":
         roots = [(label, Path(value)) for label, value in (r.split("=", 1) for r in args.root)]
@@ -443,7 +469,11 @@ def main():
     elif args.mode == "verify":
         result = verify(args.index, args.objects, args.original)
     elif args.mode == 'review':
-        result = review(args.export, args.output, args.deny_path)
+        policy = json.loads(args.private_policy.read_text(encoding='utf-8')) if args.private_policy else {}
+        if args.sensitive_input:
+            import getpass
+            policy.setdefault('never_publish', []).append(getpass.getpass('Private value to exclude (not stored): '))
+        result = review(args.export, args.output, args.deny_path, args.source_vault, args.allow_source_path, policy)
     else:
         result = restore(args.index, args.objects, args.output, args.original)
     print(json.dumps(result, indent=2))
