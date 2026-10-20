@@ -24,6 +24,8 @@ class EvidenceArchiveTests(unittest.TestCase):
             self.assertIsNotNone(exported)
             self.assertIsNone(archive.public_copy(name, b'{"password":"example-secret"}', {})[0])
         self.assertIsNone(archive.public_copy('world.snapshot', b'unknown object state', {})[0])
+        private_header = b'-----BEGIN PGP ' + b'PRIVATE KEY BLOCK-----'
+        self.assertIsNone(archive.public_copy('export.asc', private_header, {})[0])
 
     def test_review_withholds_all_aliases_without_removing_originals(self):
         with tempfile.TemporaryDirectory() as directory:

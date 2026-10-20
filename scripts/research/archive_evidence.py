@@ -43,7 +43,7 @@ RESTRICTED_EXTENSIONS = {".sav", ".pcap", ".pcapng", ".db", ".sqlite", ".sqlite3
                         ".data", ".zip", ".tar", ".gz", ".xz", ".zst", ".npz", ".pyc", ".pyo", ".cache"}
 CONTEXT_KEYS = {"build_id", "game_version", "steam_build_id", "sdk_fingerprint", "sdk_metadata_fingerprint",
                 "elf_sha256", "binary_sha256", "source_commit", "git_commit", "save_sha256", "tool_versions"}
-SECRET = re.compile(r'''(?ix)(?:["']?(?:api[_-]?key|password|passwd|access[_-]?token|auth[_-]?token|client[_-]?secret|private[_-]?key)["']?\s*[:=]\s*["'])([^"'\r\n]{4,})(?:["'])|\b(?:ghp_|github_pat_|sk-proj-|sk-ant-)[A-Za-z0-9_-]{12,}|-----BEGIN\s+(?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9_.-]{16,}|https?://[^/\s:]+:[^@\s/]+@|--(?:password|api-key|auth-token)(?:=|\s+)\S{4,}''')
+SECRET = re.compile(r'''(?ix)(?:["']?(?:api[_-]?key|password|passwd|access[_-]?token|auth[_-]?token|client[_-]?secret|private[_-]?key)["']?\s*[:=]\s*["'])([^"'\r\n]{4,})(?:["'])|\b(?:ghp_|github_pat_|sk-proj-|sk-ant-)[A-Za-z0-9_-]{12,}|-----BEGIN\s+(?:RSA |EC |OPENSSH |PGP )?PRIVATE KEY(?: BLOCK)?-----|\bBearer\s+[A-Za-z0-9_.-]{16,}|https?://[^/\s:]+:[^@\s/]+@|--(?:password|api-key|auth-token)(?:=|\s+)\S{4,}''')
 ADDRESS = re.compile(r"(?<![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])")
 USER_PATH = re.compile(r"(?i)(?:[A-Z]:[/\\]+Users[/\\]+)[^/\\\s\"']+|/home/[^/\s\"']+")
 SECRET_HINTS = ("apikey", "api_key", "api-key", "password", "passwd", "accesstoken", "access_token",
